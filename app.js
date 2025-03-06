@@ -17,8 +17,11 @@ app.use(morgan('dev')); // Logging
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // Parse JSON request bodies
 
-// API routes
-app.use('/api/tasks', taskRoutes);
+// Import auth middleware
+const apiKeyAuth = require('./middleware/authMiddleware');
+
+// API routes with authentication
+app.use('/api/tasks', apiKeyAuth, taskRoutes);
 
 // Root route
 app.get('/', (req, res) => {
