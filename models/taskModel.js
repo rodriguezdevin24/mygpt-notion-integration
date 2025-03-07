@@ -18,7 +18,7 @@ const TaskModel = {
       // Add completed filter if specified
       if (filters.completed !== undefined) {
         filterConditions.push({
-          property: 'c',  // Updated to use the new property name
+          property: 'c',  // Using the property name "c" for completed
           checkbox: {
             equals: filters.completed
           }
@@ -27,12 +27,35 @@ const TaskModel = {
       
       // Add due date filter if specified
       if (filters.dueDate) {
+        // Notion's date filter is tricky because it stores dates in multiple formats
+        // Some entries have timezone info, some don't
+        // We'll use the on_or_after and before filters to get just the specified date
+        const targetDate = new Date(filters.dueDate);
+        const nextDay = new Date(targetDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        
+        // Format dates to match Notion's expected format (YYYY-MM-DD)
+        const formattedTargetDate = targetDate.toISOString().split('T')[0];
+        const formattedNextDay = nextDay.toISOString().split('T')[0];
+        
         filterConditions.push({
-          property: 'Due Date',
-          date: {
-            equals: filters.dueDate
-          }
+          and: [
+            {
+              property: 'Due Date',
+              date: {
+                on_or_after: formattedTargetDate
+              }
+            },
+            {
+              property: 'Due Date',
+              date: {
+                before: formattedNextDay
+              }
+            }
+          ]
         });
+        
+        console.log(`Filtering tasks for date: ${formattedTargetDate} (before ${formattedNextDay})`);
       }
       
       // Add priority filter if specified
@@ -55,27 +78,188 @@ const TaskModel = {
         });
       }
       
+      // Add time of day filter if specified
+      if (filters.timeOfDay) {
+        filterConditions.push({
+          property: 'Time of Day',
+          multi_select: {
+            contains: filters.timeOfDay
+          }
+        });
+      }
+      
       // Create the filter object for the query
       const filter = filterConditions.length > 0 
         ? { and: filterConditions } 
         : undefined;
       
+      // Set up sorting options
+      let sorts = [
+        {
+          property: 'Due Date',
+          direction: 'ascending',
+        }
+      ];
+      
+      // If timeOfDay is specified in filters, add secondary sort by Time of Day
+      if (filters.timeOfDay) {
+        sorts.push({
+          property: 'Priority',
+          direction: 'ascending',
+        });
+      }
+      
       // Query the database
       const response = await notion.databases.query({
         database_id: TASKS_DATABASE_ID,
         filter,
-        sorts: [
-          {
-            property: 'Due Date',
-            direction: 'ascending',
-          },
-        ],
+        sorts,
       });
       
       // Format the results
       return response.results.map(page => formatTaskFromNotion(page));
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      throw error;
+    }
+  },
+  
+  /**
+   * Get today's tasks (incomplete and due today)
+   * @param {Object} options - Additional filters
+   * @returns {Object} - Tasks grouped by time of day
+   */
+  getTodaysTasks: async (options = {}) => {
+    try {
+      // Get today's date in local timezone, formatted as "YYYY-MM-DD"
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      
+      console.log(`Getting tasks for date: ${todayStr}`);
+      
+      console.log(`Getting tasks for date: ${todayStr}`);
+      
+      // Query all tasks first (no date filter) - this is more reliable with Notion's date handling
+      const filterConditions = [];
+      
+      // Add completed filter if specified (default to false if not specified)
+      const completedValue = options.includeCompleted ? undefined : false;
+      if (completedValue !== undefined) {
+        filterConditions.push({
+          property: 'c',
+          checkbox: {
+            equals: completedValue
+          }
+        });
+      }
+      
+      // Add time of day filter if specified
+      if (options.timeOfDay) {
+        filterConditions.push({
+          property: 'Time of Day',
+          multi_select: {
+            contains: options.timeOfDay
+          }
+        });
+      }
+      
+      const filter = filterConditions.length > 0 ? { and: filterConditions } : undefined;
+      
+      // Set up sorting
+      const sorts = [
+        {
+          property: 'Priority',
+          direction: 'ascending',
+        },
+        {
+          property: 'Time of Day',
+          direction: 'ascending',
+        }
+      ];
+      
+      // Query the database 
+      const response = await notion.databases.query({
+        database_id: TASKS_DATABASE_ID,
+        filter,
+        sorts,
+      });
+      
+      // Format all the results
+      let allTasks = response.results.map(page => formatTaskFromNotion(page));
+      
+      // FILTER FOR TODAY'S TASKS CLIENT-SIDE
+      // This is much more reliable than trying to use Notion's date filter
+      allTasks = allTasks.filter(task => {
+        if (!task.dueDate) return false;
+        
+        // Special handling for different date formats
+        let taskDateStr;
+        
+        // If it's a simple YYYY-MM-DD format (like "2025-03-07"), use it directly
+        if (/^\d{4}-\d{2}-\d{2}$/.test(task.dueDate)) {
+          taskDateStr = task.dueDate;
+        } else {
+          // For dates with time/timezone, use the Date object to extract components
+          const taskDate = new Date(task.dueDate);
+          taskDateStr = `${taskDate.getFullYear()}-${String(taskDate.getMonth() + 1).padStart(2, '0')}-${String(taskDate.getDate()).padStart(2, '0')}`;
+        }
+        
+        console.log(`Task: ${task.title}, Due: ${task.dueDate}, Extracted date: ${taskDateStr}, Today: ${todayStr}, Match: ${taskDateStr === todayStr}`);
+        
+        // Compare only the date parts
+        return taskDateStr === todayStr;
+      });
+      
+      console.log(`Found ${allTasks.length} tasks for today (${todayStr})`);
+      
+      // If groupByTimeOfDay is requested, organize tasks by time period
+      if (options.groupByTimeOfDay) {
+        const groupedTasks = {
+          morning: [],
+          afternoon: [],
+          evening: [],
+          night: [],
+          unspecified: []
+        };
+        
+        // Iterate through each task and assign to appropriate time groups
+        allTasks.forEach(task => {
+          if (!task.timeOfDay || task.timeOfDay.length === 0) {
+            groupedTasks.unspecified.push(task);
+          } else {
+            // Check if the task belongs to each time group
+            // A task can be in multiple time groups
+            let assigned = false;
+            
+            for (const timeSlot of task.timeOfDay) {
+              const normalizedTimeSlot = timeSlot.toLowerCase();
+              if (groupedTasks[normalizedTimeSlot]) {
+                groupedTasks[normalizedTimeSlot].push(task);
+                assigned = true;
+              }
+            }
+            
+            // If the task has timeOfDay values but none match our groups,
+            // add to unspecified
+            if (!assigned) {
+              groupedTasks.unspecified.push(task);
+            }
+          }
+        });
+        
+        return {
+          date: todayStr,
+          groupedTasks,
+          allTasks
+        };
+      }
+      
+      return {
+        date: todayStr,
+        tasks: allTasks
+      };
+    } catch (error) {
+      console.error('Error fetching today\'s tasks:', error);
       throw error;
     }
   },

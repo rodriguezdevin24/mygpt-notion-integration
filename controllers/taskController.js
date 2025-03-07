@@ -17,7 +17,8 @@ const taskController = {
                    req.query.completed === 'false' ? false : undefined,
         dueDate: req.query.dueDate,
         priority: req.query.priority,
-        occurrence: req.query.occurrence
+        occurrence: req.query.occurrence,
+        timeOfDay: req.query.timeOfDay // Add support for timeOfDay filter
       };
       
       // Remove undefined filters
@@ -33,6 +34,51 @@ const taskController = {
       res.status(500).json({ 
         success: false, 
         message: 'Failed to fetch tasks',
+        error: error.message
+      });
+    }
+  },
+  
+  /**
+   * Get today's tasks
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  getTodaysTasks: async (req, res) => {
+    try {
+      // Extract options from query parameters
+      const options = {
+        includeCompleted: req.query.completed === 'true',
+        timeOfDay: req.query.timeOfDay,
+        groupByTimeOfDay: req.query.grouped === 'true' || req.query.grouped === undefined // Default to true if not specified
+      };
+      
+      console.log('Request for today\'s tasks with options:', options);
+      
+      console.log('Fetching today\'s tasks with options:', options);
+      
+      const result = await TaskModel.getTodaysTasks(options);
+      
+      // Return the appropriate response based on whether tasks are grouped
+      if (options.groupByTimeOfDay) {
+        res.json({
+          success: true,
+          date: result.date,
+          groupedTasks: result.groupedTasks,
+          allTasks: result.allTasks
+        });
+      } else {
+        res.json({
+          success: true,
+          date: result.date,
+          tasks: result.tasks
+        });
+      }
+    } catch (error) {
+      console.error('Controller error in getTodaysTasks:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch today\'s tasks',
         error: error.message
       });
     }

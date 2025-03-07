@@ -6,6 +6,9 @@ const taskController = require('../controllers/taskController');
  * Task routes
  */
 
+// GET today's tasks (must come before /:id route to avoid conflict)
+router.get('/today', taskController.getTodaysTasks);
+
 // GET all tasks (with optional filters)
 router.get('/', taskController.getAllTasks);
 

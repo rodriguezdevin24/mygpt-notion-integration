@@ -2,6 +2,10 @@
  * Helper functions for working with the Notion API
  */
 
+// Define valid options for occurrence
+// Update this list based on what you find in your Notion database
+const VALID_OCCURRENCES = ["Daily", "Weekly", "Once", "Reoccuring", "Pls"];
+
 /**
  * Format task data from Notion's API response to a cleaner structure
  * @param {Object} page - Notion page object
@@ -10,13 +14,21 @@
 const formatTaskFromNotion = (page) => {
     const properties = page.properties;
     
+    // Debug the raw properties that come back from Notion
+    console.log('Raw Notion properties:', Object.keys(properties));
+    
+    // Try different case variations of "Occurrence"
+    const occurrenceProperty = properties.Occurrence || 
+                              properties.occurrence || 
+                              properties.OCCURRENCE;
+    
     return {
       id: page.id,
       title: properties.Task?.title?.[0]?.plain_text || '',
       completed: properties.c?.checkbox || false,  // Using the new property name "c"
       dueDate: properties['Due Date']?.date?.start || null,
       note: properties.Note?.rich_text?.[0]?.plain_text || '',
-      occurrence: properties.Occurrence?.select?.name || null,
+      occurrence: occurrenceProperty?.select?.name || null,
       timeOfDay: properties['Time of Day']?.multi_select?.map(option => option.name) || [],
       goals: properties.Goals?.relation?.map(rel => rel.id) || [],
       priority: properties.Priority?.select?.name || null,
@@ -66,11 +78,21 @@ const formatTaskFromNotion = (page) => {
       };
     }
   
-    // Handle occurrence property
+    // Handle occurrence property with validation
     if (data.occurrence !== undefined) {
-      properties.Occurrence = data.occurrence 
-        ? { select: { name: data.occurrence } } 
-        : { select: null };
+      // If null/empty, set to null
+      if (!data.occurrence) {
+        properties.Occurrence = { select: null };
+      } 
+      // If valid option, set it
+      else if (VALID_OCCURRENCES.includes(data.occurrence)) {
+        properties.Occurrence = { select: { name: data.occurrence } };
+      }
+      // If invalid option, log warning and set to null
+      else {
+        console.warn(`Warning: Invalid occurrence value "${data.occurrence}". Must be one of: ${VALID_OCCURRENCES.join(', ')}`);
+        properties.Occurrence = { select: null };
+      }
     }
   
     // Handle time of day property
