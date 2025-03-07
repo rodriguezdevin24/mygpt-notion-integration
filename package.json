@@ -4,29 +4,31 @@
     "description": "API for interacting with Notion Tasks database",
     "main": "app.js",
     "scripts": {
-      "start": "node app.js",
-      "dev": "nodemon app.js",
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "node app.js",
+        "dev": "nodemon app.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [
-      "notion",
-      "api",
-      "tasks"
+        "notion",
+        "api",
+        "tasks"
     ],
     "author": "",
     "license": "MIT",
     "dependencies": {
-      "@notionhq/client": "^2.2.5",
-      "cors": "^2.8.5",
-      "dotenv": "^16.0.3",
-      "express": "^4.18.2",
-      "helmet": "^6.1.5",
-      "morgan": "^1.10.0"
+        "@notionhq/client": "^2.2.5",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.3",
+        "express": "^4.21.2",
+        "fs": "^0.0.1-security",
+        "helmet": "^6.1.5",
+        "morgan": "^1.10.0",
+        "path": "^0.12.7"
     },
     "devDependencies": {
-      "nodemon": "^2.0.22"
+        "nodemon": "^2.0.22"
     },
     "engines": {
-      "node": ">=14.0.0"
+        "node": ">=14.0.0"
     }
-  }
+}
