@@ -3,9 +3,11 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 
 // Import routes
 const taskRoutes = require('./routes/taskRoutes');
+const privacyRoutes = require('./routes/privacyRoutes.js'); // Add this line
 
 // Initialize express app
 const app = express();
@@ -17,11 +19,12 @@ app.use(morgan('dev')); // Logging
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // Parse JSON request bodies
 
-// Import auth middleware
-const apiKeyAuth = require('./middleware/authMiddleware');
+// Create a public directory for static files
+app.use(express.static(path.join(__dirname, 'public')));
 
-// API routes with authentication
-app.use('/api/tasks', apiKeyAuth, taskRoutes);
+// API routes
+app.use('/api/tasks', taskRoutes);
+app.use('/privacy', privacyRoutes); // Add this line
 
 // Root route
 app.get('/', (req, res) => {
@@ -29,7 +32,8 @@ app.get('/', (req, res) => {
     message: 'Notion Tasks API',
     version: '1.0.0',
     endpoints: {
-      tasks: '/api/tasks'
+      tasks: '/api/tasks',
+      privacy: '/privacy'  // Add this line
     }
   });
 });
