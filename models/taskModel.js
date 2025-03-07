@@ -125,19 +125,21 @@ const TaskModel = {
   },
   
   /**
-   * Get today's tasks (incomplete and due today)
-   * @param {Object} options - Additional filters
-   * @returns {Object} - Tasks grouped by time of day
-   */
-  getTodaysTasks: async (options = {}) => {
+ * Get today's tasks (incomplete and due today)
+ * @param {Object} options - Additional filters
+ * @returns {Object} - Tasks grouped by time of day
+ */
+getTodaysTasks: async (options = {}) => {
     try {
-      // Get today's date in local timezone, formatted as "YYYY-MM-DD"
-      const now = new Date();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      // Force use of America/New_York timezone (or whatever timezone your tasks are in)
+      // This ensures consistency across all environments
+      const nowInET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
       
-      console.log(`Getting tasks for date: ${todayStr}`);
+      // Format as YYYY-MM-DD in Eastern Time
+      const todayStr = `${nowInET.getFullYear()}-${String(nowInET.getMonth() + 1).padStart(2, '0')}-${String(nowInET.getDate()).padStart(2, '0')}`;
       
-      console.log(`Getting tasks for date: ${todayStr}`);
+      console.log(`Getting tasks for Eastern Time date: ${todayStr}`);
+      console.log(`Raw date for reference: ${nowInET.toString()}`);
       
       // Query all tasks first (no date filter) - this is more reliable with Notion's date handling
       const filterConditions = [];
@@ -195,18 +197,21 @@ const TaskModel = {
         // Special handling for different date formats
         let taskDateStr;
         
-        // If it's a simple YYYY-MM-DD format (like "2025-03-07"), use it directly
+        // If it's a simple YYYY-MM-DD format (like "2025-03-06"), use it directly
         if (/^\d{4}-\d{2}-\d{2}$/.test(task.dueDate)) {
           taskDateStr = task.dueDate;
         } else {
-          // For dates with time/timezone, use the Date object to extract components
-          const taskDate = new Date(task.dueDate);
-          taskDateStr = `${taskDate.getFullYear()}-${String(taskDate.getMonth() + 1).padStart(2, '0')}-${String(taskDate.getDate()).padStart(2, '0')}`;
+          // For dates with time/timezone, convert to Eastern Time zone
+          // Note: we parse the date string to get a Date object in any timezone
+          // Then convert that to Eastern Time
+          const taskDateObj = new Date(task.dueDate);
+          const taskDateET = new Date(taskDateObj.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+          taskDateStr = `${taskDateET.getFullYear()}-${String(taskDateET.getMonth() + 1).padStart(2, '0')}-${String(taskDateET.getDate()).padStart(2, '0')}`;
         }
         
-        console.log(`Task: ${task.title}, Due: ${task.dueDate}, Extracted date: ${taskDateStr}, Today: ${todayStr}, Match: ${taskDateStr === todayStr}`);
+        console.log(`Task: ${task.title}, Due: ${task.dueDate}, Extracted date in ET: ${taskDateStr}, Today in ET: ${todayStr}, Match: ${taskDateStr === todayStr}`);
         
-        // Compare only the date parts
+        // Compare the date parts in Eastern Time
         return taskDateStr === todayStr;
       });
       
