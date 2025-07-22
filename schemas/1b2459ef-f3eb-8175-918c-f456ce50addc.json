@@ -1,0 +1,83 @@
+{
+  "id": "1b2459ef-f3eb-8175-918c-f456ce50addc",
+  "name": "Marketing Campaign 2025",
+  "properties": {
+    "Name": {
+      "title": {}
+    },
+    "Description": {
+      "rich_text": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Not Started",
+            "color": "default"
+          },
+          {
+            "name": "In Progress",
+            "color": "default"
+          },
+          {
+            "name": "Completed",
+            "color": "default"
+          },
+          {
+            "name": "On Hold",
+            "color": "default"
+          }
+        ]
+      }
+    },
+    "Start Date": {
+      "date": {}
+    },
+    "Due Date": {
+      "date": {}
+    },
+    "Tags": {
+      "multi_select": {
+        "options": [
+          {
+            "name": "Marketing",
+            "color": "default"
+          },
+          {
+            "name": "Social Media",
+            "color": "default"
+          },
+          {
+            "name": "Email",
+            "color": "default"
+          }
+        ]
+      }
+    },
+    "Priority": {
+      "select": {
+        "options": [
+          {
+            "name": "Low",
+            "color": "default"
+          },
+          {
+            "name": "Medium",
+            "color": "default"
+          },
+          {
+            "name": "High",
+            "color": "default"
+          },
+          {
+            "name": "Urgent",
+            "color": "default"
+          }
+        ]
+      }
+    }
+  },
+  "createdTime": "2025-03-10T23:43:00.000Z",
+  "lastEditedTime": "2025-03-10T23:43:00.000Z",
+  "url": "https://www.notion.so/1b2459eff3eb8175918cf456ce50addc"
+}

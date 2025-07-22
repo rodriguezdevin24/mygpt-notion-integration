@@ -135,6 +135,7 @@ getTodaysTasks: async (options = {}) => {
       // This ensures consistency across all environments
       const nowInET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
       
+      
       // Format as YYYY-MM-DD in Eastern Time
       const todayStr = `${nowInET.getFullYear()}-${String(nowInET.getMonth() + 1).padStart(2, '0')}-${String(nowInET.getDate()).padStart(2, '0')}`;
       

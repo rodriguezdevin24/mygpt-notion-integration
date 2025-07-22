@@ -1,0 +1,88 @@
+{
+  "id": "1ea459ef-f3eb-81dd-86d6-e0cb61a799d0",
+  "name": "Support Ticket Tracker",
+  "properties": {
+    "Ticket ID": {
+      "title": {}
+    },
+    "Description": {
+      "rich_text": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Open"
+          },
+          {
+            "name": "In Progress"
+          },
+          {
+            "name": "Resolved"
+          },
+          {
+            "name": "Closed"
+          }
+        ]
+      }
+    },
+    "Priority": {
+      "select": {
+        "options": [
+          {
+            "name": "Low"
+          },
+          {
+            "name": "Medium"
+          },
+          {
+            "name": "High"
+          },
+          {
+            "name": "Urgent"
+          }
+        ]
+      }
+    },
+    "Created At": {
+      "date": {}
+    },
+    "Assigned To": {
+      "rich_text": {}
+    },
+    "Tags": {
+      "multi_select": {
+        "options": [
+          {
+            "name": "Bug"
+          },
+          {
+            "name": "Feature"
+          },
+          {
+            "name": "Support"
+          },
+          {
+            "name": "Other"
+          }
+        ]
+      }
+    },
+    "Is Critical": {
+      "checkbox": {}
+    },
+    "Status1": {
+      "type": "select",
+      "options": [
+        "Open",
+        "In Review",
+        "Waiting on Client",
+        "Resolved",
+        "Closed"
+      ]
+    }
+  },
+  "createdTime": "2025-05-05T05:58:00.000Z",
+  "lastEditedTime": "2025-05-13T04:10:00.000Z",
+  "url": "https://www.notion.so/1ea459eff3eb81dd86d6e0cb61a799d0"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "14f459ef-f3eb-80fb-b9d8-cd348070eaa1",
+  "name": "Tasks",
+  "properties": {
+    "Task": {
+      "type": "title",
+      "required": true
+    },
+    "c": {
+      "type": "checkbox"
+    },
+    "Due Date": {
+      "type": "date"
+    },
+    "Note": {
+      "type": "rich_text"
+    },
+    "Occurrence": {
+      "type": "select"
+    },
+    "Time of Day": {
+      "type": "multi_select"
+    },
+    "Goals": {
+      "type": "relation"
+    },
+    "Priority": {
+      "type": "select"
+    }
+  }
+}
