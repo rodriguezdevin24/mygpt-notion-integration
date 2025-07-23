@@ -1,0 +1,30 @@
+{
+  "id": "1e7459ef-f3eb-8141-9078-ff0ee71053c0",
+  "name": "API Test DB 3",
+  "properties": {
+    "Title": {
+      "title": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Open"
+          },
+          {
+            "name": "In Progress"
+          },
+          {
+            "name": "Closed"
+          }
+        ]
+      }
+    },
+    "Due Date": {
+      "date": {}
+    }
+  },
+  "createdTime": "2025-05-02T09:18:00.000Z",
+  "lastEditedTime": "2025-05-02T09:18:00.000Z",
+  "url": "https://www.notion.so/1e7459eff3eb81419078ff0ee71053c0"
+}

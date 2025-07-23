@@ -1,0 +1,97 @@
+{
+  "id": "1ea459ef-f3eb-81fa-8e82-fca4412f1dea",
+  "name": "Customer Issue Tracker444",
+  "properties": {
+    "Ticket ID": {
+      "title": {}
+    },
+    "Description": {
+      "rich_text": {}
+    },
+    "Status": {
+      "type": "select",
+      "options": [
+        "Open",
+        "In Review",
+        "Waiting on Client",
+        "Resolved",
+        "Closed"
+      ]
+    },
+    "Priority": {
+      "select": {
+        "options": [
+          {
+            "name": "Low"
+          },
+          {
+            "name": "Medium"
+          },
+          {
+            "name": "High"
+          },
+          {
+            "name": "Urgent"
+          }
+        ]
+      }
+    },
+    "Created At": {
+      "date": {}
+    },
+    "Assigned To": {
+      "type": "select",
+      "options": [
+        "John",
+        "Sarah",
+        "Mike",
+        "Lisa"
+      ]
+    },
+    "Tags": {
+      "multi_select": {
+        "options": [
+          {
+            "name": "Bug"
+          },
+          {
+            "name": "Feature"
+          },
+          {
+            "name": "Support"
+          },
+          {
+            "name": "Other"
+          }
+        ]
+      }
+    },
+    "Is Critical": {
+      "checkbox": {}
+    },
+    "Escalation Level": {
+      "type": "select",
+      "options": [
+        "L",
+        "M",
+        "H",
+        "C"
+      ]
+    },
+    "Urgency": {
+      "type": "select",
+      "options": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "Customer Notes": {
+      "type": "rich_text"
+    }
+  },
+  "createdTime": "2025-05-05T06:16:00.000Z",
+  "lastEditedTime": "2025-05-12T11:52:00.000Z",
+  "url": "https://www.notion.so/1ea459eff3eb81fa8e82fca4412f1dea"
+}

@@ -1,0 +1,89 @@
+{
+  "id": "238459ef-f3eb-81e1-9da6-c31c3100f771",
+  "name": "The One - Updated",
+  "properties": {
+    "Title": {
+      "title": {}
+    },
+    "Description": {
+      "rich_text": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Not Started"
+          },
+          {
+            "name": "In Progress"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "On Hold"
+          }
+        ]
+      }
+    },
+    "Priority": {
+      "select": {
+        "options": [
+          {
+            "name": "Low"
+          },
+          {
+            "name": "Medium"
+          },
+          {
+            "name": "High"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      }
+    },
+    "Tags": {
+      "multi_select": {
+        "options": [
+          {
+            "name": "Work"
+          },
+          {
+            "name": "Personal"
+          },
+          {
+            "name": "Important"
+          },
+          {
+            "name": "Urgent"
+          }
+        ]
+      }
+    },
+    "Due Date": {
+      "date": {}
+    },
+    "Budget": {
+      "number": {
+        "format": "dollar"
+      }
+    },
+    "Is Active": {
+      "checkbox": {}
+    },
+    "Website": {
+      "url": {}
+    },
+    "Contact Email": {
+      "email": {}
+    },
+    "New Field": {
+      "type": "rich_text"
+    }
+  },
+  "createdTime": "2025-07-22T21:28:00.000Z",
+  "lastEditedTime": "2025-07-22T21:39:00.000Z",
+  "url": "https://www.notion.so/238459eff3eb81e19da6c31c3100f771"
+}

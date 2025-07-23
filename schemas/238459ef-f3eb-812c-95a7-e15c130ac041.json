@@ -1,0 +1,41 @@
+{
+  "id": "238459ef-f3eb-812c-95a7-e15c130ac041",
+  "name": "Projects Hub",
+  "properties": {
+    "Project Name": {
+      "title": {}
+    },
+    "Project Type": {
+      "select": {
+        "options": [
+          {
+            "name": "Software"
+          },
+          {
+            "name": "Marketing"
+          },
+          {
+            "name": "Research"
+          },
+          {
+            "name": "Operations"
+          }
+        ]
+      }
+    },
+    "Start Date": {
+      "date": {}
+    },
+    "Team Size": {
+      "number": {
+        "format": "number"
+      }
+    },
+    "Notes": {
+      "rich_text": {}
+    }
+  },
+  "createdTime": "2025-07-22T21:32:00.000Z",
+  "lastEditedTime": "2025-07-22T21:32:00.000Z",
+  "url": "https://www.notion.so/238459eff3eb812c95a7e15c130ac041"
+}

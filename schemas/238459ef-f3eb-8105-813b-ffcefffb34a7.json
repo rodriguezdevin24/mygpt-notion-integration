@@ -1,0 +1,86 @@
+{
+  "id": "238459ef-f3eb-8105-813b-ffcefffb34a7",
+  "name": "The Juan",
+  "properties": {
+    "Title": {
+      "title": {}
+    },
+    "Description": {
+      "rich_text": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Not Started"
+          },
+          {
+            "name": "In Progress"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "On Hold"
+          }
+        ]
+      }
+    },
+    "Priority": {
+      "select": {
+        "options": [
+          {
+            "name": "Low"
+          },
+          {
+            "name": "Medium"
+          },
+          {
+            "name": "High"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      }
+    },
+    "Tags": {
+      "multi_select": {
+        "options": [
+          {
+            "name": "Work"
+          },
+          {
+            "name": "Personal"
+          },
+          {
+            "name": "Important"
+          },
+          {
+            "name": "Urgent"
+          }
+        ]
+      }
+    },
+    "Due Date": {
+      "date": {}
+    },
+    "Budgeeet": {
+      "number": {
+        "format": "dollar"
+      }
+    },
+    "Is Active": {
+      "checkbox": {}
+    },
+    "Webbbbite": {
+      "url": {}
+    },
+    "Contact Email": {
+      "email": {}
+    }
+  },
+  "createdTime": "2025-07-22T21:17:00.000Z",
+  "lastEditedTime": "2025-07-22T21:17:00.000Z",
+  "url": "https://www.notion.so/238459eff3eb8105813bffcefffb34a7"
+}

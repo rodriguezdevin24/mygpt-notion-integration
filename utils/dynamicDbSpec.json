@@ -1,0 +1,53 @@
+{
+    "type": "object",
+    "required": ["name", "properties"],
+    "properties": {
+      "name": { "type": "string", "minLength": 1 },
+      "properties": {
+        "type": "object",
+        "patternProperties": {
+          "^.+$": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "enum": [
+                  "title",
+                  "rich_text",
+                  "number",
+                  "select",
+                  "multi_select",
+                  "date",
+                  "checkbox",
+                  "relation",
+                  "url",
+                  "email",
+                  "phone_number",
+                  "files"
+                ]
+              },
+              "options": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "relation": {
+                "type": "object",
+                "required": ["database_id"],
+                "properties": {
+                  "database_id": { "type": "string", "minLength": 1 }
+                },
+                "additionalProperties": false
+              },
+              "format": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "icon": { "type": "object" },
+      "cover": { "type": "object" }
+    },
+    "additionalProperties": false
+  }
+  
