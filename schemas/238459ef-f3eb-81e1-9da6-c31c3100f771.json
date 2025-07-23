@@ -1,8 +1,8 @@
 {
-  "id": "1ea459ef-f3eb-81dd-86d6-e0cb61a799d0",
-  "name": "Support Ticket Tracker",
+  "id": "238459ef-f3eb-81e1-9da6-c31c3100f771",
+  "name": "The One - Updated",
   "properties": {
-    "Ticket ID": {
+    "Title": {
       "title": {}
     },
     "Description": {
@@ -12,16 +12,16 @@
       "select": {
         "options": [
           {
-            "name": "Open"
+            "name": "Not Started"
           },
           {
             "name": "In Progress"
           },
           {
-            "name": "Resolved"
+            "name": "Completed"
           },
           {
-            "name": "Closed"
+            "name": "On Hold"
           }
         ]
       }
@@ -39,50 +39,51 @@
             "name": "High"
           },
           {
-            "name": "Urgent"
+            "name": "Critical"
           }
         ]
       }
-    },
-    "Created At": {
-      "date": {}
-    },
-    "Assigned To": {
-      "rich_text": {}
     },
     "Tags": {
       "multi_select": {
         "options": [
           {
-            "name": "Bug"
+            "name": "Work"
           },
           {
-            "name": "Feature"
+            "name": "Personal"
           },
           {
-            "name": "Support"
+            "name": "Important"
           },
           {
-            "name": "Other"
+            "name": "Urgent"
           }
         ]
       }
     },
-    "Is Critical": {
+    "Due Date": {
+      "date": {}
+    },
+    "Budget": {
+      "number": {
+        "format": "dollar"
+      }
+    },
+    "Is Active": {
       "checkbox": {}
     },
-    "Status1": {
-      "type": "select",
-      "options": [
-        "Open",
-        "In Review",
-        "Waiting on Client",
-        "Resolved",
-        "Closed"
-      ]
+    "Website": {
+      "url": {}
+    },
+    "Contact Email": {
+      "email": {}
+    },
+    "New Field": {
+      "type": "rich_text"
     }
   },
-  "createdTime": "2025-05-05T05:58:00.000Z",
-  "lastEditedTime": "2025-05-13T04:10:00.000Z",
-  "url": "https://www.notion.so/1ea459eff3eb81dd86d6e0cb61a799d0"
+  "createdTime": "2025-07-22T21:28:00.000Z",
+  "lastEditedTime": "2025-07-22T21:39:00.000Z",
+  "url": "https://www.notion.so/238459eff3eb81e19da6c31c3100f771"
 }

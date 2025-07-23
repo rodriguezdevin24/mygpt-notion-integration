@@ -15,7 +15,7 @@ const dynamicController = {
       // Pass the request body straight through as the spec
       const database = await dynamicDbService.createDatabase(req.body);
       // Respond with the newly created database schema
-      res.status(201).json({ success: true, databases });
+      res.status(201).json({ success: true, database });
     } catch (err) {
       next(err)
     }
@@ -30,7 +30,7 @@ const dynamicController = {
     try {
       const databases = dynamicDbService.getAllDatabases();
       console.log('➡️ dynamicDbService returned:', databases);
-      res.json({ success: true. databases });
+      res.json({ success: true, databases });
     } catch (err) {
       next (err)
     }
