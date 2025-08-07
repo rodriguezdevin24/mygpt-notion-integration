@@ -1,0 +1,30 @@
+{
+  "id": "248459ef-f3eb-81e0-a1e2-e92cca88966a",
+  "name": "Habits",
+  "properties": {
+    "Title": {
+      "title": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Planned"
+          },
+          {
+            "name": "Doing"
+          },
+          {
+            "name": "Done"
+          }
+        ]
+      }
+    },
+    "Date": {
+      "date": {}
+    }
+  },
+  "createdTime": "2025-08-07T21:28:00.000Z",
+  "lastEditedTime": "2025-08-07T21:28:00.000Z",
+  "url": "https://www.notion.so/248459eff3eb81e0a1e2e92cca88966a"
+}
