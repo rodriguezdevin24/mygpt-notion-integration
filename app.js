@@ -9,6 +9,7 @@ const taskRoutes = require('./routes/taskRoutes');
 const dynamicRoutes = require('./routes/dynamicRoutes');
 const dynamicEntryRoutes = require('./routes/dynamicEntryRoutes')
 const discoveryRoutes = require('./routes/discoveryRoutes');
+const actionsRoutes = require('./routes/actionsRoutes');
 
 
 
@@ -64,6 +65,7 @@ app.use('/api/tasks/', taskRoutes);
 app.use('/api/dynamic/', dynamicRoutes)
 app.use('/api/dynamic/', dynamicEntryRoutes)
 app.use('api/discovery/', discoveryRoutes)
+app.use('/api', actionsRoutes);
 
 
 // Root route
