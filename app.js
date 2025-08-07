@@ -8,6 +8,10 @@ const morgan = require('morgan');
 const taskRoutes = require('./routes/taskRoutes');
 const dynamicRoutes = require('./routes/dynamicRoutes');
 const dynamicEntryRoutes = require('./routes/dynamicEntryRoutes')
+const discoveryRoutes = require('./routes/discoveryRoutes');
+
+
+
 
 // Import database registry
 const databaseRegistry = require('./config/databaseRegistry');
@@ -56,9 +60,10 @@ app.use(express.json()); // Parse JSON request bodies
 })();
 
 // API routes
-app.use('/api/tasks', taskRoutes);
-app.use('/api/dynamic', dynamicRoutes)
+app.use('/api/tasks/', taskRoutes);
+app.use('/api/dynamic/', dynamicRoutes)
 app.use('/api/dynamic/', dynamicEntryRoutes)
+app.use('api/discovery/', discoveryRoutes)
 
 
 // Root route
@@ -75,11 +80,11 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
     success: false,
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Server error'
+    message: err.message || 'Something went wrong!',
+    ...(process.env.NODE_ENV === 'development' ? { stack: err.stack } : {})
   });
 });
 

@@ -1,4 +1,4 @@
-//dynamicModel.js
+//models/dynamicModel.js
 const { notion } = require('../config/notion');
 const databaseRegistry = require('../config/databaseRegistry');
 

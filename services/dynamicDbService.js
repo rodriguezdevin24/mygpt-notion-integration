@@ -1,9 +1,32 @@
-//dynamicDBSetup.js
+//services/dynamicDBService.js
 
 const { notion } = require('../config/notion');
 const { validateSpec } = require('../utils/schemaValidator');
 const { toNotionProperties } = require('../utils/schemaMapper');
 const databaseRegistry = require('../config/databaseRegistry');
+
+
+function normalizeCreateSpec(spec = {}) {
+  const normalized = {
+    name: spec.name,
+    properties: (spec.properties && typeof spec.properties === 'object')
+      ? { ...spec.properties }
+      : { Title: { type: 'title' } }, // default Title if missing
+    icon: spec.icon,
+    cover: spec.cover
+  };
+
+  // Coerce select/multi_select option objects -> string[]
+  for (const [propName, def] of Object.entries(normalized.properties)) {
+    if (!def || typeof def !== 'object') continue;
+    if ((def.type === 'select' || def.type === 'multi_select') && Array.isArray(def.options)) {
+      if (def.options.every(o => o && typeof o === 'object' && 'name' in o)) {
+        def.options = def.options.map(o => String(o.name));
+      }
+    }
+  }
+  return normalized;
+}
 
 const dynamicDbService = {
     /**
@@ -11,6 +34,8 @@ const dynamicDbService = {
    * @param {Object} spec - Validated dynamic DB spec from client
    * @returns {Object} Created database schema
    */
+
+
 
 async createDatabase(spec) {
     // 1. Validate incoming spec against JSON schema 

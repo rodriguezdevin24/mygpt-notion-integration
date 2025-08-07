@@ -1,5 +1,5 @@
 /**
- * schemaMapper.js
+ * utils/schemaMapper.js
  * Convert validated dynamic DB spec JSON into Notion API properties format
  */
 

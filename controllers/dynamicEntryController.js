@@ -1,4 +1,4 @@
-// dynamicEntryController.js
+// controllers/dynamicEntryController.js
 
 const DynamicModel = require('../models/dynamicModel')
 
@@ -21,7 +21,7 @@ const dynamicEntryController = {
         try {
             const { dbId, entryId } = req.params;
             const model = new DynamicModel(dbId);
-            const entry = await model.create(req.body);
+            const entry = await model.getById(req.body);
             res.status(201).json({ success: true, entry });
         } catch (err) {
             next(err);

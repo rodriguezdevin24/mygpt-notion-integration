@@ -1,0 +1,19 @@
+{
+  "id": "248459ef-f3eb-8156-b849-f113401d650d",
+  "name": "Bet",
+  "properties": {
+    "Title": {
+      "type": "title"
+    },
+    "Status": {
+      "type": "select",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    }
+  },
+  "createdTime": "2025-08-07T21:18:00.000Z",
+  "lastEditedTime": "2025-08-07T21:20:00.000Z",
+  "url": "https://www.notion.so/248459eff3eb8156b849f113401d650d"
+}
