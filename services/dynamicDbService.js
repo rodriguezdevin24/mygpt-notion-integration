@@ -1,128 +1,221 @@
-//services/dynamicDBService.js
+// services/dynamicDbService.js
+'use strict';
 
 const { notion } = require('../config/notion');
+const databaseRegistry = require('../config/databaseRegistry');
 const { validateSpec } = require('../utils/schemaValidator');
 const { toNotionProperties } = require('../utils/schemaMapper');
-const databaseRegistry = require('../config/databaseRegistry');
 
+/* ---------------- Helpers (loose normalization & mapping) ---------------- */
 
-function normalizeCreateSpec(spec = {}) {
-  const normalized = {
-    name: spec.name,
-    properties: (spec.properties && typeof spec.properties === 'object')
-      ? { ...spec.properties }
-      : { Title: { type: 'title' } }, // default Title if missing
-    icon: spec.icon,
-    cover: spec.cover
-  };
+function ensureCanonicalTitle(properties) {
+  properties = properties || {};
+  const hasTitle = Object.entries(properties).some(([_, def]) => def && def.type === 'title');
+  if (!hasTitle) properties.Title = { type: 'title' };
+  return properties;
+}
 
-  // Coerce select/multi_select option objects -> string[]
-  for (const [propName, def] of Object.entries(normalized.properties)) {
+function coerceOptionsInCanonical(properties) {
+  properties = properties || {};
+  for (const def of Object.values(properties)) {
     if (!def || typeof def !== 'object') continue;
     if ((def.type === 'select' || def.type === 'multi_select') && Array.isArray(def.options)) {
+      // Allow either ["A","B"] or [{name:"A"},{name:"B"}]
       if (def.options.every(o => o && typeof o === 'object' && 'name' in o)) {
         def.options = def.options.map(o => String(o.name));
       }
     }
   }
+  return properties;
+}
+
+function normalizeCreateSpec(spec) {
+  spec = spec || {};
+  const normalized = {
+    name: spec.name,
+    icon: spec.icon,
+    cover: spec.cover,
+    properties: (spec.properties && typeof spec.properties === 'object') ? { ...spec.properties } : {}
+  };
+  ensureCanonicalTitle(normalized.properties);
+  coerceOptionsInCanonical(normalized.properties);
   return normalized;
 }
 
-const dynamicDbService = {
-    /**
-   * Create a new Notion database based on the incoming spec
-   * @param {Object} spec - Validated dynamic DB spec from client
-   * @returns {Object} Created database schema
-   */
+function normalizeUpdateProps(props) {
+  if (!props || typeof props !== 'object') return undefined;
+  const normalized = { ...props };
+  coerceOptionsInCanonical(normalized);
+  return normalized;
+}
 
+function ensureNotionSafeProps(notionProps) {
+  const safe = { ...(notionProps || {}) };
+  const hasTitle = Object.values(safe).some(v => v && typeof v === 'object' && Object.prototype.hasOwnProperty.call(v, 'title'));
+  if (!hasTitle) safe.Title = { title: {} };
+  return safe;
+}
 
+function notionToCanonicalProperties(notionProps) {
+  const out = {};
+  const entries = Object.entries(notionProps || {});
+  for (const [name, prop] of entries) {
+    const type = prop && prop.type;
+    if (!type) continue;
+    switch (type) {
+      case 'select':
+        out[name] = {
+          type: 'select',
+          options: (prop.select && prop.select.options ? prop.select.options : []).map(o => o.name).filter(Boolean)
+        };
+        break;
+      case 'multi_select':
+        out[name] = {
+          type: 'multi_select',
+          options: (prop.multi_select && prop.multi_select.options ? prop.multi_select.options : []).map(o => o.name).filter(Boolean)
+        };
+        break;
+      case 'number':
+        out[name] = { type: 'number', format: (prop.number && prop.number.format) || 'number' };
+        break;
+      case 'relation':
+        out[name] = { type: 'relation', relation: { database_id: prop.relation && prop.relation.database_id } };
+        break;
+      case 'title':
+      case 'rich_text':
+      case 'date':
+      case 'checkbox':
+      case 'url':
+      case 'email':
+      case 'phone_number':
+      case 'files':
+        out[name] = { type };
+        break;
+      default:
+        out[name] = { type: 'rich_text' };
+        break;
+    }
+  }
+  return out;
+}
 
-async createDatabase(spec) {
-    // 1. Validate incoming spec against JSON schema 
+function tryValidate(spec) {
+  try {
     validateSpec(spec);
-    // 2. Map spec properties to Notion API format 
-    const properties = toNotionProperties(spec.properties);
-    // 3. Build options for registry(including parent pade it)
-    const  options = {
-        name: spec.name,
-        properties,
-        parent: {
-            type: 'page_id',
-            page_id: process.env.SUPERPOSITION_PAGE_ID
-        },
-        icon: spec.icon,
-        cover: spec.cover 
+    return { ok: true };
+  } catch (e) {
+    console.warn('[dynamicDbService] Spec validation warning:', e.message);
+    return { ok: false, error: e };
+  }
+}
+
+/* ------------------------------ Service API ------------------------------ */
+
+const dynamicDbService = {
+  /**
+   * Create a new Notion database (loose input)
+   * Accepts: { name, properties?, icon?, cover?, parent? }
+   * - Auto-injects Title if missing
+   * - Coerces select options
+   * - Falls back to workspace if parent missing
+   */
+  async createDatabase(spec) {
+    // 1) Normalize to canonical, forgiving input
+    const normalized = normalizeCreateSpec(spec);
+
+    // 2) Best-effort validate (non-fatal)
+    tryValidate(normalized); // we proceed even if this warns
+
+    // 3) Map canonical -> Notion properties
+    const notionProps = toNotionProperties(normalized.properties);
+
+    // 4) Ensure Notion has a Title property
+    const safeNotionProps = ensureNotionSafeProps(notionProps);
+
+    // 5) Resolve parent
+    const parentOption = (spec && spec.parent) || {
+      type: 'page_id',
+      page_id: process.env.NOTION_PARENT_PAGE_ID || process.env.SUPERPOSITION_PAGE_ID
     };
-    // 4. Call registry to create in NOTION and save locally
-    const schema = await databaseRegistry.createDatabase(options);
-    return schema; 
-},
+    const finalParent = (parentOption && parentOption.page_id)
+      ? parentOption
+      : { type: 'workspace', workspace: true };
 
-    /**
-     * Get all registered dynamic databases 
-     * @returns {Array} Array of databases 
-     */
+    // 6) Create via registry (which calls Notion and persists locally)
+    const created = await databaseRegistry.createDatabase({
+      name: normalized.name,
+      properties: safeNotionProps,
+      parent: finalParent,
+      icon: normalized.icon,
+      cover: normalized.cover
+    });
 
-    getAllDatabases() {
-        return databaseRegistry.getAllDatabases();
-    },
-    /**
-     * Get a single database schema by ID
-     * @param {string} id - Database ID
-     * @returns {Object[null]} Database schema or null
-     */
-    getDatabaseById(id) {
-        return databaseRegistry.getDatabaseSchema(id);
-    },
-   /**
- * Rename or update schema properties of an existing database
- * @param {string} dbId
- * @param {Object} updates   // { name?: string, properties?: {...} }
- */
-   async updateDatabase(dbId, updates) {
+    return created;
+  },
+
+  /** List all registered databases */
+  getAllDatabases() {
+    return databaseRegistry.getAllDatabases();
+  },
+
+  /** Get a single database schema by ID */
+  getDatabaseById(id) {
+    return databaseRegistry.getDatabaseSchema(id);
+  },
+
+  /**
+   * Update database name and/or properties (loose)
+   * Accepts: { name?, properties? }
+   * - Coerces select/multi_select options
+   * - Validates only when properties provided (non-fatal)
+   * - Patches Notion, then re-syncs live schema back into registry (canonical)
+   */
+  async updateDatabase(dbId, updates) {
+    updates = updates || {};
     const patch = { database_id: dbId };
-    
-    // 1) Rename if requested
+
     if (updates.name) {
       patch.title = [{ type: 'text', text: { content: updates.name } }];
+    }
 
-    }
-    
-    // 2) Schema changes if provided
     if (updates.properties) {
-      // Only validate when properties are actually passed
-      validateSpec({ name: 'ignored', properties: updates.properties });
-      
-      // Convert to Notion format for the API call
-      patch.properties = toNotionProperties(updates.properties);
-      console.log('→ PATCH payload to Notion:', JSON.stringify(patch, null, 2));
+      const normProps = normalizeUpdateProps(updates.properties);
+      if (normProps) {
+        // Try validation loosely
+        tryValidate({ name: 'ignored', properties: normProps });
+
+        const notionProps = toNotionProperties(normProps);
+        patch.properties = notionProps;
+        console.log('→ PATCH payload to Notion:', JSON.stringify({ ...patch, database_id: 'REDACTED' }, null, 2));
+      }
     }
-        
-    // 3) Send the patch to Notion
+
+    // Send patch to Notion
     const response = await notion.databases.update(patch);
-    console.log('← Notion responded with:', JSON.stringify(response, null, 2));
-    
-    // 4) Update our local registry
-    const current = this.getDatabaseById(dbId);
-    if (!current) throw new Error(`Database ${dbId} not found in registry`);
-    
-    // For properties, merge the ORIGINAL properties with updates
-    // (not the Notion API formatted properties)
-    const mergedProps = updates.properties
-      ? { ...current.properties, ...updates.properties }
-      : current.properties;
-    
+    console.log('← Notion responded with:', JSON.stringify({ id: response.id, last_edited_time: response.last_edited_time }, null, 2));
+
+    // Re-sync from Notion to avoid drift
+    const live = await notion.databases.retrieve({ database_id: dbId });
+    const canonicalProps = notionToCanonicalProperties(live.properties);
+
+    const current = this.getDatabaseById(dbId) || {};
     const updatedSchema = {
-      ...current,
-      ...(updates.name ? { name: updates.name } : {}),
-      properties: mergedProps,
-      lastEditedTime: response.last_edited_time
+      id: live.id,
+      name: (live.title && live.title[0] && live.title[0].plain_text) || updates.name || current.name || 'Untitled',
+      properties: canonicalProps,
+      lastEditedTime: live.last_edited_time,
+      url: live.url,
+      icon: live.icon,
+      cover: live.cover
     };
-    
-    // 5) Persist it
+
     await databaseRegistry.updateDatabaseSchema(dbId, updatedSchema);
+    if (typeof databaseRegistry.saveSchema === 'function') {
+      await databaseRegistry.saveSchema(updatedSchema);
+    }
+
     return updatedSchema;
-  },
+  }
 };
 
 module.exports = dynamicDbService;
