@@ -1,5 +1,5 @@
 /**
- * notionHelpers.js
+ * utils/notionHelpers.js
  * Helper functions for working with the Notion API
  */
 

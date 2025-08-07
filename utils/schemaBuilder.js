@@ -1,4 +1,4 @@
-/** schemaBuilder.js
+/** utils/schemaBuilder.js
  * Utility to help build Notion database schemas
  */
 class SchemaBuilder {

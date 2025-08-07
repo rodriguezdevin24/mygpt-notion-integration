@@ -1,5 +1,7 @@
 /**
  * Middleware for API key authentication
+ * / middleware/authMiddleWare.js
+ *
  */
 
 // Your API key will be stored in environment variables

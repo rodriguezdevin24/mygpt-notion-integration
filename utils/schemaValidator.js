@@ -1,4 +1,4 @@
-//schemaValidator.js
+// utils/schemaValidator.js
 const path = require("path");
 const Ajv = require("ajv");
 
