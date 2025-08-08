@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const dynamicDbService = require('../services/dynamicDbService');
 const DynamicModel = require('../models/dynamicModel'); // for entries
+const NotionDiscoveryService = require('../services/notionDiscoveryService');
 
 // Convert fields[] -> properties{} (for database creation)
 function fieldsToProperties(fields = []) {
@@ -116,6 +117,54 @@ router.post('/actions/update-entry', async (req, res, next) => {
     const model = new DynamicModel(dbId);
     const entry = await model.update(entryId, data);
     res.json({ success: true, entry });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/actions/list-databases', async (req, res, next) => {
+  try {
+    const dbs = await NotionDiscoveryService.discoverDatabases();
+    res.json({ success: true, count: dbs.length, databases: dbs });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/actions/list-entries
+// Body: { dbId, filters?: [{name, op, value}], pageSize?, startCursor? }
+router.post('/actions/list-entries', async (req, res, next) => {
+  try {
+    const { dbId, filters = [], pageSize, startCursor } = req.body || {};
+    if (!dbId) return res.status(400).json({ success: false, message: 'dbId is required' });
+
+    // Convert array -> DynamicModel.getAll({ filters: {...} }) shape
+    // Supported ops: contains (text), equals (text/select/checkbox), date_equals
+    const fobj = {};
+    for (const f of filters) {
+      if (!f || !f.name) continue;
+      const name = String(f.name);
+      const op = String(f.op || '').toLowerCase();
+      const val = f.value;
+
+      if (op === 'contains') {
+        fobj[name] = String(val || '');
+      } else if (op === 'equals') {
+        // allow boolean/number/string
+        fobj[name] = val;
+      } else if (op === 'date_equals') {
+        fobj[name] = { equals: String(val) };
+      }
+    }
+
+    const model = new DynamicModel(dbId);
+    const result = await model.getAll({
+      filters: fobj,
+      pageSize: pageSize || 50,
+      startCursor
+    });
+
+    res.json({ success: true, ...result });
   } catch (err) {
     next(err);
   }
