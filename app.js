@@ -66,7 +66,7 @@ app.use('/api/tasks/', taskRoutes);
 app.use('/api/dynamic/', dynamicRoutes)
 app.use('/api/dynamic/', dynamicEntryRoutes)
 app.use('api/discovery/', discoveryRoutes)
-app.use('/privacy', privacyRoutes);
+app.use('/', privacyRoutes);
 app.use('/api', actionsRoutes);
 
 
