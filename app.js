@@ -65,7 +65,7 @@ app.use(express.json()); // Parse JSON request bodies
 app.use('/api/tasks/', taskRoutes);
 app.use('/api/dynamic/', dynamicRoutes)
 app.use('/api/dynamic/', dynamicEntryRoutes)
-app.use('api/discovery/', discoveryRoutes)
+app.use('/api/discovery/', discoveryRoutes)
 app.use('/', privacyRoutes);
 app.use('/api', actionsRoutes);
 
