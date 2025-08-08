@@ -90,4 +90,36 @@ router.post('/actions/create-entry', async (req, res, next) => {
   }
 });
 
+// --- Add/modify DB properties (PATCH via POST shim) ---
+router.post('/actions/add-properties', async (req, res, next) => {
+  try {
+    const { dbId, fields } = req.body || {};
+    if (!dbId || !Array.isArray(fields) || fields.length === 0) {
+      return res.status(400).json({ success: false, message: 'dbId and fields[] are required' });
+    }
+    const properties = fieldsToProperties(fields); // converts [{name,type,options}] -> { Name: {type,options}, ... }
+    const updated = await dynamicDbService.updateDatabase(dbId, { properties });
+    res.json({ success: true, database: updated });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// --- Update an entry (PATCH via POST shim) ---
+router.post('/actions/update-entry', async (req, res, next) => {
+  try {
+    const { dbId, entryId, values } = req.body || {};
+    if (!dbId || !entryId || !Array.isArray(values) || values.length === 0) {
+      return res.status(400).json({ success: false, message: 'dbId, entryId and values[] are required' });
+    }
+    const data = valuesToData(values); // converts [{name,value,...}] -> { Name: value, ... }
+    const model = new DynamicModel(dbId);
+    const entry = await model.update(entryId, data);
+    res.json({ success: true, entry });
+  } catch (err) {
+    next(err);
+  }
+});
+
+
 module.exports = router;
