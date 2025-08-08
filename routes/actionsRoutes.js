@@ -6,6 +6,7 @@ const router = express.Router();
 const dynamicDbService = require('../services/dynamicDbService');
 const DynamicModel = require('../models/dynamicModel'); // for entries
 const NotionDiscoveryService = require('../services/notionDiscoveryService');
+const databaseRegistry = require('../config/databaseRegistry');
 
 // Convert fields[] -> properties{} (for database creation)
 function fieldsToProperties(fields = []) {
