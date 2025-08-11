@@ -5,6 +5,7 @@ const router = express.Router();
 const DynamicModel = require('../models/dynamicModel');
 const databaseRegistry = require('../config/databaseRegistry');
 const NotionDiscoveryService = require('../services/notionDiscoveryService');
+const dynamicDbService = require('../services/dynamicDbService');
 
 /* ===== helpers: name + value mapping (for multi_select, rich_text, etc.) ===== */
 
@@ -81,6 +82,37 @@ function valuesArrayToUpdate(values, schema) {
   return out;
 }
 
+// ADD THIS MISSING FUNCTION - it's referenced but not defined in your code
+function fieldsToProperties(fields = []) {
+  const out = {};
+  for (const f of fields) {
+    if (!f || typeof f !== 'object') continue;
+    const name = String(f.name || '').trim();
+    const type = String(f.type || '').trim();
+    if (!name || !type) continue;
+
+    const def = { type };
+    
+    // Handle select/multi_select options
+    if ((type === 'select' || type === 'multi_select') && Array.isArray(f.options)) {
+      def.options = f.options.map(opt => typeof opt === 'string' ? opt : String(opt));
+    }
+    
+    // Handle relation database_id
+    if (type === 'relation' && f.database_id) {
+      def.relation = { database_id: String(f.database_id) };
+    }
+    
+    // Handle number format if provided
+    if (type === 'number' && f.format) {
+      def.format = f.format;
+    }
+    
+    out[name] = def;
+  }
+  return out;
+}
+
 async function getSchemaEnsure(dbId) {
   let schema = databaseRegistry.getDatabaseSchema(dbId);
   if (!schema) {
@@ -116,14 +148,17 @@ function pickVisible(entry, changedKeys) {
 
 /* ====================== actions endpoints ====================== */
 
-// LIVE discovery list (this is the one returning 404)
+// LIVE discovery list
 router.get('/actions/list-databases', async (req, res, next) => {
   try {
     const all = await NotionDiscoveryService.discoverDatabases();
     // filter out trashed/archived if present
     const filtered = all.filter(d => !(d.in_trash || d.archived));
     res.json({ success: true, count: filtered.length, databases: filtered });
-  } catch (err) { next(err); }
+  } catch (err) { 
+    console.error('Error listing databases:', err);
+    next(err); 
+  }
 });
 
 // GET /api/actions/list-entries?dbId=...&pageSize=..&startCursor=..
@@ -132,7 +167,6 @@ router.get('/actions/list-entries', async (req, res, next) => {
     const { dbId, pageSize, startCursor } = req.query || {};
     if (!dbId) return res.status(400).json({ success: false, message: 'dbId required' });
 
-    // Uses the getSchemaEnsure helper already in this file
     await getSchemaEnsure(dbId);
 
     const model = new DynamicModel(dbId);
@@ -142,9 +176,11 @@ router.get('/actions/list-entries', async (req, res, next) => {
     });
 
     res.json({ success: true, ...results });
-  } catch (err) { next(err); }
+  } catch (err) { 
+    console.error('Error listing entries:', err);
+    next(err); 
+  }
 });
-
 
 // create entry
 router.post('/actions/create-entry', async (req, res, next) => {
@@ -155,12 +191,17 @@ router.post('/actions/create-entry', async (req, res, next) => {
     }
     const schema = await getSchemaEnsure(dbId);
     const data = valuesArrayToUpdate(values, schema);
+    
+    console.log('Creating entry with data:', JSON.stringify(data, null, 2));
+    
     const model = new DynamicModel(dbId);
     const entry = await model.create(data);
     res.status(201).json({ success: true, entry: pickVisible(entry, Object.keys(data)) });
-  } catch (err) { next(err); }
+  } catch (err) { 
+    console.error('Error creating entry:', err);
+    next(err); 
+  }
 });
-
 
 // update entry
 router.post('/actions/update-entry', async (req, res, next) => {
@@ -171,12 +212,17 @@ router.post('/actions/update-entry', async (req, res, next) => {
     }
     const schema = await getSchemaEnsure(dbId);
     const data = valuesArrayToUpdate(values, schema);
+    
+    console.log('Updating entry with data:', JSON.stringify(data, null, 2));
+    
     const model = new DynamicModel(dbId);
     const entry = await model.update(entryId, data);
     res.json({ success: true, entry: pickVisible(entry, Object.keys(data)) });
-  } catch (err) { next(err); }
+  } catch (err) { 
+    console.error('Error updating entry:', err);
+    next(err); 
+  }
 });
-
 
 // POST /api/actions/create-database
 router.post('/actions/create-database', async (req, res, next) => {
@@ -191,9 +237,15 @@ router.post('/actions/create-database', async (req, res, next) => {
     const fieldsNorm = hasTitle ? fields : [{ name: 'Title', type: 'title' }, ...fields];
 
     const properties = fieldsToProperties(fieldsNorm);
+    
+    console.log('Creating database with properties:', JSON.stringify(properties, null, 2));
+    
     const db = await dynamicDbService.createDatabase({ name, properties });
     res.status(201).json({ success: true, database: db });
-  } catch (err) { next(err); }
+  } catch (err) { 
+    console.error('Error creating database:', err);
+    next(err); 
+  }
 });
 
 // POST /api/actions/add-properties
@@ -205,9 +257,15 @@ router.post('/actions/add-properties', async (req, res, next) => {
     }
 
     const properties = fieldsToProperties(fields);
+    
+    console.log('Adding properties to database:', JSON.stringify(properties, null, 2));
+    
     const updated = await dynamicDbService.updateDatabase(dbId, { properties });
     res.json({ success: true, database: updated });
-  } catch (err) { next(err); }
+  } catch (err) { 
+    console.error('Error adding properties:', err);
+    next(err); 
+  }
 });
 
 module.exports = router;
