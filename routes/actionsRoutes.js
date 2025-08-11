@@ -126,6 +126,26 @@ router.get('/actions/list-databases', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// GET /api/actions/list-entries?dbId=...&pageSize=..&startCursor=..
+router.get('/actions/list-entries', async (req, res, next) => {
+  try {
+    const { dbId, pageSize, startCursor } = req.query || {};
+    if (!dbId) return res.status(400).json({ success: false, message: 'dbId required' });
+
+    // Uses the getSchemaEnsure helper already in this file
+    await getSchemaEnsure(dbId);
+
+    const model = new DynamicModel(dbId);
+    const results = await model.getAll({
+      pageSize: pageSize ? Number(pageSize) : undefined,
+      startCursor: startCursor || undefined
+    });
+
+    res.json({ success: true, ...results });
+  } catch (err) { next(err); }
+});
+
+
 // create entry
 router.post('/actions/create-entry', async (req, res, next) => {
   try {
@@ -141,6 +161,7 @@ router.post('/actions/create-entry', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+
 // update entry
 router.post('/actions/update-entry', async (req, res, next) => {
   try {
@@ -153,6 +174,39 @@ router.post('/actions/update-entry', async (req, res, next) => {
     const model = new DynamicModel(dbId);
     const entry = await model.update(entryId, data);
     res.json({ success: true, entry: pickVisible(entry, Object.keys(data)) });
+  } catch (err) { next(err); }
+});
+
+
+// POST /api/actions/create-database
+router.post('/actions/create-database', async (req, res, next) => {
+  try {
+    const { name, fields } = req.body || {};
+    if (!name || !Array.isArray(fields) || !fields.length) {
+      return res.status(400).json({ success: false, message: 'name and fields[] required' });
+    }
+
+    // ensure a title exists
+    const hasTitle = fields.some(f => String(f?.type).toLowerCase() === 'title');
+    const fieldsNorm = hasTitle ? fields : [{ name: 'Title', type: 'title' }, ...fields];
+
+    const properties = fieldsToProperties(fieldsNorm);
+    const db = await dynamicDbService.createDatabase({ name, properties });
+    res.status(201).json({ success: true, database: db });
+  } catch (err) { next(err); }
+});
+
+// POST /api/actions/add-properties
+router.post('/actions/add-properties', async (req, res, next) => {
+  try {
+    const { dbId, fields } = req.body || {};
+    if (!dbId || !Array.isArray(fields) || !fields.length) {
+      return res.status(400).json({ success: false, message: 'dbId and fields[] required' });
+    }
+
+    const properties = fieldsToProperties(fields);
+    const updated = await dynamicDbService.updateDatabase(dbId, { properties });
+    res.json({ success: true, database: updated });
   } catch (err) { next(err); }
 });
 
