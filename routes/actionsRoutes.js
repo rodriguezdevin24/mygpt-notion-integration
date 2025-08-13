@@ -57,16 +57,18 @@ function coerceFieldValue(field, typeHint) {
     case 'date':
       return field.value || field.text || null;
     case 'rich_text':
+      if (typeof field.value === 'string' && field.value.trim()) return field.value;
       if (typeof field.text === 'string') return field.text;
-      if (typeof field.value === 'string') return field.value;
       return '';
     case 'title':
-      return field.value ?? field.text ?? '';
+  if (typeof field.value === 'string' && field.value.trim()) return field.value;
+  if (typeof field.text === 'string' && field.text.trim()) return field.text;
+  return '';
     default:
-      if (field.value !== undefined) return field.value;
-      if (field.text !== undefined) return field.text;
-      if (field.values !== undefined) return field.values;
-      return null;
+          if (field.value !== undefined) return field.value;
+          if (field.text !== undefined) return field.text;
+          if (field.values !== undefined) return field.values;
+          return null;
   }
 }
 
