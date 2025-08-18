@@ -12,9 +12,6 @@ const discoveryRoutes = require('./routes/discoveryRoutes');
 const privacyRoutes = require('./routes/privacyRoutes')
 const actionsRoutes = require('./routes/actionsRoutes');
 
-
-
-
 // Import database registry
 const databaseRegistry = require('./config/databaseRegistry');
 
@@ -28,6 +25,26 @@ app.use(morgan('dev')); // Logging
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // Parse JSON request bodies
 
+// Simple request logging middleware - ADD THIS
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  const requestId = Math.random().toString(36).substr(2, 6);
+  
+  console.log(`
+🔥 REQUEST [${requestId}] - ${timestamp}
+${req.method} ${req.url}
+Body: ${JSON.stringify(req.body)}
+Headers: ${JSON.stringify(req.headers)}
+========================
+  `);
+  
+  // Log when response finishes
+  res.on('finish', () => {
+    console.log(`✅ RESPONSE [${requestId}] - Status: ${res.statusCode}`);
+  });
+  
+  next();
+});
 
 // Initialize database registry
 (async function() {
@@ -68,7 +85,6 @@ app.use('/api/dynamic/', dynamicEntryRoutes)
 app.use('/api/discovery/', discoveryRoutes)
 app.use('/', privacyRoutes);
 app.use('/api', actionsRoutes);
-
 
 // Root route
 app.get('/', (req, res) => {
