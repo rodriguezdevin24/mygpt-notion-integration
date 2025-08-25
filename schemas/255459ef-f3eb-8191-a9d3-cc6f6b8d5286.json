@@ -1,0 +1,30 @@
+{
+  "id": "255459ef-f3eb-8191-a9d3-cc6f6b8d5286",
+  "name": "Test",
+  "properties": {
+    "Title": {
+      "title": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Planned"
+          },
+          {
+            "name": "Doing"
+          },
+          {
+            "name": "Done"
+          }
+        ]
+      }
+    },
+    "Date": {
+      "date": {}
+    }
+  },
+  "createdTime": "2025-08-20T01:53:00.000Z",
+  "lastEditedTime": "2025-08-20T01:53:00.000Z",
+  "url": "https://www.notion.so/255459eff3eb8191a9d3cc6f6b8d5286"
+}
