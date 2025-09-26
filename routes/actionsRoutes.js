@@ -84,7 +84,7 @@ function valuesArrayToUpdate(values, schema) {
   return out;
 }
 
-// ADD THIS MISSING FUNCTION - it's referenced 
+
 function fieldsToProperties(fields = []) {
   const out = {};
   for (const f of fields) {
