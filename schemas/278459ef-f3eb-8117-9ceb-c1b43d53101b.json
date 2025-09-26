@@ -1,0 +1,62 @@
+{
+  "id": "278459ef-f3eb-8117-9ceb-c1b43d53101b",
+  "name": "Projects24",
+  "properties": {
+    "Project Name": {
+      "title": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Planning"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "On Hold"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    },
+    "Budget": {
+      "number": {
+        "format": "dollar"
+      }
+    },
+    "Start Date": {
+      "date": {}
+    },
+    "End Date": {
+      "date": {}
+    },
+    "Priority": {
+      "select": {
+        "options": [
+          {
+            "name": "Low"
+          },
+          {
+            "name": "Medium"
+          },
+          {
+            "name": "High"
+          },
+          {
+            "name": "Critical"
+          }
+        ]
+      }
+    }
+  },
+  "createdTime": "2025-09-24T03:51:00.000Z",
+  "lastEditedTime": "2025-09-24T03:51:00.000Z",
+  "url": "https://www.notion.so/278459eff3eb81179cebc1b43d53101b"
+}

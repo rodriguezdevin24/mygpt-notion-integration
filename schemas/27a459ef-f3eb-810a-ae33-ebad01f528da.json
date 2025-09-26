@@ -1,0 +1,46 @@
+{
+  "id": "27a459ef-f3eb-810a-ae33-ebad01f528da",
+  "name": "Actions Test DB",
+  "properties": {
+    "Completion Rate": {
+      "type": "rich_text"
+    },
+    "Related Tasks": {
+      "type": "relation",
+      "relation": {
+        "database_id": "27a459ef-f3eb-8106-98c4-e7e26d12783f"
+      }
+    },
+    "Double Score": {
+      "type": "rich_text"
+    },
+    "Completed Tasks": {
+      "type": "rich_text"
+    },
+    "Completed Tasks Fixed": {
+      "type": "rich_text"
+    },
+    "Task Hours Sum": {
+      "type": "rich_text"
+    },
+    "Score": {
+      "type": "number",
+      "format": "number"
+    },
+    "Status": {
+      "type": "select",
+      "options": [
+        "New",
+        "Active",
+        "Done"
+      ]
+    },
+    "Title": {
+      "type": "title"
+    }
+  },
+  "lastEditedTime": "2025-09-26T12:09:00.000Z",
+  "url": "https://www.notion.so/27a459eff3eb810aae33ebad01f528da",
+  "icon": null,
+  "cover": null
+}

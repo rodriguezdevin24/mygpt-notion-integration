@@ -1,0 +1,29 @@
+{
+  "id": "277459ef-f3eb-81c7-bdce-d8ca54442fc7",
+  "name": "SourceDB",
+  "properties": {
+    "Title": {
+      "title": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Inactive"
+          }
+        ]
+      }
+    },
+    "Score": {
+      "number": {
+        "format": "number"
+      }
+    }
+  },
+  "createdTime": "2025-09-23T09:58:00.000Z",
+  "lastEditedTime": "2025-09-23T09:58:00.000Z",
+  "url": "https://www.notion.so/277459eff3eb81c7bdced8ca54442fc7"
+}

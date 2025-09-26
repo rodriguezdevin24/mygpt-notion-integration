@@ -84,7 +84,7 @@ function valuesArrayToUpdate(values, schema) {
   return out;
 }
 
-// ADD THIS MISSING FUNCTION - it's referenced but not defined in your code
+// ADD THIS MISSING FUNCTION - it's referenced 
 function fieldsToProperties(fields = []) {
   const out = {};
   for (const f of fields) {
@@ -100,9 +100,30 @@ function fieldsToProperties(fields = []) {
       def.options = f.options.map(opt => typeof opt === 'string' ? opt : String(opt));
     }
     
-    // Handle relation database_id
+    // Handle relation properties (one-way and two-way)
     if (type === 'relation' && f.database_id) {
-      def.relation = { database_id: String(f.database_id) };
+      def.relation = {
+        database_id: String(f.database_id)
+      };
+      
+      // Handle two-way relations
+      if (f.synced_property_name) {
+        def.relation.synced_property_name = String(f.synced_property_name);
+      }
+    }
+
+    // Handle formula properties
+    if (type === 'formula' && f.expression) {
+      def.expression = String(f.expression);
+    }
+
+    // Handle rollup properties (FIXED TYPO)
+    if (type === 'rollup' && f.relation_property_name && f.rollup_property_name && f.function) {
+      def.rollup = {
+        relation_property_name: String(f.relation_property_name),
+        rollup_property_name: String(f.rollup_property_name),
+        function: String(f.function)
+      };
     }
     
     // Handle number format if provided

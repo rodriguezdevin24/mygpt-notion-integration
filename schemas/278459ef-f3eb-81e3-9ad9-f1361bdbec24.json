@@ -1,0 +1,77 @@
+{
+  "id": "278459ef-f3eb-81e3-9ad9-f1361bdbec24",
+  "name": "Tasks24",
+  "properties": {
+    "Tasks (Relation)": {
+      "type": "relation",
+      "relation": {
+        "database_id": "278459ef-f3eb-81e3-9ad9-f1361bdbec24"
+      }
+    },
+    "Due Date": {
+      "type": "date"
+    },
+    "Total Tasks": {
+      "type": "rich_text"
+    },
+    "Estimated Hours": {
+      "type": "number",
+      "format": "number"
+    },
+    "Total Estimated Hours": {
+      "type": "rich_text"
+    },
+    "Project": {
+      "type": "relation",
+      "relation": {
+        "database_id": "278459ef-f3eb-8117-9ceb-c1b43d53101b"
+      }
+    },
+    "Total Actual Hours": {
+      "type": "rich_text"
+    },
+    "Assignee": {
+      "type": "rich_text"
+    },
+    "Priority": {
+      "type": "select",
+      "options": [
+        "Low",
+        "Medium",
+        "High",
+        "Urgent"
+      ]
+    },
+    "Completion %": {
+      "type": "number",
+      "format": "percent"
+    },
+    "Project 1": {
+      "type": "relation",
+      "relation": {
+        "database_id": "278459ef-f3eb-81e3-9ad9-f1361bdbec24"
+      }
+    },
+    "Status": {
+      "type": "select",
+      "options": [
+        "Not Started",
+        "In Progress",
+        "Review",
+        "Done",
+        "Blocked"
+      ]
+    },
+    "Actual Hours": {
+      "type": "number",
+      "format": "number"
+    },
+    "Task Name": {
+      "type": "title"
+    }
+  },
+  "lastEditedTime": "2025-09-24T12:28:00.000Z",
+  "url": "https://www.notion.so/278459eff3eb81e39ad9f1361bdbec24",
+  "icon": null,
+  "cover": null
+}
