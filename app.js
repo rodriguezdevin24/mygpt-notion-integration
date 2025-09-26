@@ -5,12 +5,14 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 // Import routes
-const taskRoutes = require('./routes/taskRoutes');
+
+
 const dynamicRoutes = require('./routes/dynamicRoutes');
 const dynamicEntryRoutes = require('./routes/dynamicEntryRoutes')
 const discoveryRoutes = require('./routes/discoveryRoutes');
 const privacyRoutes = require('./routes/privacyRoutes')
 const actionsRoutes = require('./routes/actionsRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 
 // Import database registry
 const databaseRegistry = require('./config/databaseRegistry');

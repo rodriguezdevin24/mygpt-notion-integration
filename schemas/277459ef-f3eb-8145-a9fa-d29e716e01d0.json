@@ -1,0 +1,17 @@
+{
+  "id": "277459ef-f3eb-8145-a9fa-d29e716e01d0",
+  "name": "Test Relations DB",
+  "properties": {
+    "Completed Count": {
+      "type": "rollup",
+      "rollup": {
+        "relation_property_name": "Project",
+        "rollup_property_name": "c",
+        "function": "checked"
+      }
+    }
+  },
+  "createdTime": "2025-09-23T08:28:00.000Z",
+  "lastEditedTime": "2025-09-23T09:01:00.000Z",
+  "url": "https://www.notion.so/277459eff3eb8145a9fad29e716e01d0"
+}

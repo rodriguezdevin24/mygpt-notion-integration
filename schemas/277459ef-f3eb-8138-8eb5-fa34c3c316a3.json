@@ -1,0 +1,19 @@
+{
+  "id": "277459ef-f3eb-8138-8eb5-fa34c3c316a3",
+  "name": "MainDB",
+  "properties": {
+    "Title": {
+      "title": {}
+    },
+    "Link to Source": {
+      "relation": {
+        "database_id": "277459ef-f3eb-81c7-bdce-d8ca54442fc7",
+        "type": "single_property",
+        "single_property": {}
+      }
+    }
+  },
+  "createdTime": "2025-09-23T10:01:00.000Z",
+  "lastEditedTime": "2025-09-23T10:01:00.000Z",
+  "url": "https://www.notion.so/277459eff3eb81388eb5fa34c3c316a3"
+}

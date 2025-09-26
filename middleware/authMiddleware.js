@@ -12,8 +12,9 @@ const API_KEY = process.env.API_KEY;
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
+ * 
  */
-const apiKeyAuth = (req, res, next) => {
+const apiKeyAuth = (req, res, next ) => {
   // Get the API key from the request headers
   const apiKey = req.headers['x-api-key'];
   
