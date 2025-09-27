@@ -111,7 +111,7 @@ function valuesArrayToUpdate(values, schema) {
   }
   return out;
 }
-const { validateFormulaBasics } = require('../utils/notionFormulas');
+
 
 function fieldsToProperties(fields = []) {
   const out = {};
