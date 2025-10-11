@@ -1,0 +1,50 @@
+{
+  "id": "255459ef-f3eb-812d-ab31-febadcd53dc6",
+  "name": "Tasks DB",
+  "properties": {
+    "Priority": {
+      "type": "select",
+      "options": [
+        "!!!",
+        "!!",
+        "!",
+        "High",
+        "Low",
+        "Medium"
+      ]
+    },
+    "Note": {
+      "type": "rich_text"
+    },
+    "Occurrence": {
+      "type": "select",
+      "options": [
+        "Daily",
+        "Weekly",
+        "Once",
+        "Work",
+        "Future",
+        "Recurring",
+        "One-time"
+      ]
+    },
+    "Due Date": {
+      "type": "date"
+    },
+    "C": {
+      "type": "checkbox"
+    },
+    "Time of Day": {
+      "type": "select",
+      "options": [
+        "Start",
+        "Any",
+        "End"
+      ]
+    },
+    "Task": {
+      "type": "title"
+    }
+  },
+  "url": "https://www.notion.so/255459eff3eb812dab31febadcd53dc6"
+}

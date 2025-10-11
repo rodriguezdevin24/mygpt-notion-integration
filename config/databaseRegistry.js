@@ -3,6 +3,9 @@ const fs = require('fs').promises;
 const path = require('path');
 const { notion } = require('./notion');
 
+// TASKS DATABASE ID TO EXCLUDE
+const TASKS_DATABASE_ID = process.env.NOTION_TASKS_DATABASE_ID;
+
 /**
  * Registry for managing Notion databases dynamically
  */
@@ -32,10 +35,19 @@ class DatabaseRegistry {
         const filePath = path.join(this.schemaDir, file);
         const content = await fs.readFile(filePath, 'utf8');
         const schema = JSON.parse(content);
+        
+        // SKIP TASKS DATABASE - IT'S HARDCODED NOW
+        if (schema.id === TASKS_DATABASE_ID) {
+          console.log(`Skipping Tasks database (${schema.id}) - using hardcoded system`);
+          // Optionally delete the file
+          await fs.unlink(filePath).catch(() => {});
+          continue;
+        }
+        
         this.registerDatabase(schema);
       }
 
-      console.log(`Loaded ${this.databases.size} database schemas from storage`);
+      console.log(`Loaded ${this.databases.size} database schemas from storage (excluding Tasks)`);
     } catch (error) {
       console.error('Error initializing database registry:', error);
     }
@@ -50,8 +62,21 @@ class DatabaseRegistry {
       throw new Error('Database schema must include id and name');
     }
 
+    // SKIP TASKS DATABASE
+    if (schema.id === TASKS_DATABASE_ID) {
+      console.log('Skipping Tasks database registration - using hardcoded system');
+      return;
+    }
+
     this.databases.set(schema.id, schema);
     console.log(`Registered database: ${schema.name} (${schema.id})`);
+
+    //Debug
+    const verify = this.databases.get(schema.id);
+  if (!verify) {
+    console.error(`❌ FAILED TO REGISTER: ${schema.id} - Map.get returns null!`);
+  }
+
   }
 
   /**
@@ -60,6 +85,10 @@ class DatabaseRegistry {
    * @returns {Object} - Database schema
    */
   getDatabaseSchema(id) {
+    // Return null for Tasks database - it's hardcoded now
+    if (id === TASKS_DATABASE_ID) {
+      return null;
+    }
     return this.databases.get(id);
   }
 
@@ -77,6 +106,12 @@ class DatabaseRegistry {
    */
   async saveSchema(schema) {
     try {
+      // DON'T SAVE TASKS DATABASE
+      if (schema.id === TASKS_DATABASE_ID) {
+        console.log('Not saving Tasks database schema - using hardcoded system');
+        return;
+      }
+      
       const filename = `${schema.id}.json`;
       const filePath = path.join(this.schemaDir, filename);
       await fs.writeFile(filePath, JSON.stringify(schema, null, 2));
@@ -143,6 +178,11 @@ class DatabaseRegistry {
    * @returns {Object} - Updated schema
    */
   async updateDatabaseSchema(id, updates) {
+    // Don't update Tasks database
+    if (id === TASKS_DATABASE_ID) {
+      throw new Error('Cannot update Tasks database through registry - it uses hardcoded system');
+    }
+    
     const schema = this.getDatabaseSchema(id);
     
     if (!schema) {
@@ -155,6 +195,17 @@ class DatabaseRegistry {
     await this.saveSchema(updatedSchema);
 
     return updatedSchema;
+  }
+
+  /**
+   * Remove a database from the registry (cleanup method)
+   * @param {string} id - Database ID to remove
+   */
+  removeDatabase(id) {
+    if (this.databases.has(id)) {
+      this.databases.delete(id);
+      console.log(`Removed database ${id} from registry`);
+    }
   }
 }
 

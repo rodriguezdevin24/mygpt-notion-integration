@@ -4,25 +4,65 @@ const router = express.Router();
 const taskController = require('../controllers/taskController');
 
 /**
- * Task routes
+ * Task Routes - Optimized hardcoded endpoints
  */
 
-// GET today's tasks (must come before /:id route to avoid conflict)
+router.get('/schema', async (req, res) => {
+  const { notion } = require('../config/notion');
+  const TASKS_DB_ID = process.env.NOTION_TASKS_DATABASE_ID;
+  
+  try {
+    const db = await notion.databases.retrieve({
+      database_id: TASKS_DB_ID
+    });
+    
+    // Show all property names
+    const properties = Object.keys(db.properties);
+    
+    res.json({
+      message: "Your Tasks DB properties:",
+      properties: properties,
+      detailed: Object.entries(db.properties).map(([name, prop]) => ({
+        name: name,
+        type: prop.type
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/tasks/today - Get today's tasks
 router.get('/today', taskController.getTodaysTasks);
 
-// GET all tasks (with optional filters)
+// GET /api/tasks - Get all tasks with optional filters
 router.get('/', taskController.getAllTasks);
 
-// GET a single task by ID
+// GET /api/tasks/:id - Get a single task
 router.get('/:id', taskController.getTaskById);
 
-// POST create a new task
+// POST /api/tasks - Create a single task
 router.post('/', taskController.createTask);
 
-// PATCH update an existing task
+// POST /api/tasks/batch - Create multiple tasks
+router.post('/batch', taskController.createBatch);
+
+// PATCH /api/tasks/:id - Update a task
 router.patch('/:id', taskController.updateTask);
 
-// DELETE a task
+// PUT /api/tasks/:id - Update a task (alias for PATCH)
+router.put('/:id', taskController.updateTask);
+
+// DELETE /api/tasks/:id - Delete (archive) a task
 router.delete('/:id', taskController.deleteTask);
+
+// POST /api/tasks/:id/complete - Mark task as complete
+router.post('/:id/complete', taskController.completeTask);
+
+// POST /api/tasks/:id/uncomplete - Mark task as incomplete
+router.post('/:id/uncomplete', taskController.uncompleteTask);
+
+// Temporary debug route - DELETE AFTER FIXING
+
 
 module.exports = router;

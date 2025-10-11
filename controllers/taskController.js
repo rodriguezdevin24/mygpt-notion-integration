@@ -1,220 +1,227 @@
-//controllers/taskController.js
-
+// controllers/taskController.js
 const TaskModel = require('../models/taskModel');
 
-/**
- * Controller for task-related operations
- */
 const taskController = {
   /**
-   * Get all tasks
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
+   * Get all tasks with optional filters
    */
-  getAllTasks: async (req, res) => {
+  async getAllTasks(req, res, next) {
     try {
-      // Extract filter parameters from query string
       const filters = {
         completed: req.query.completed === 'true' ? true : 
                    req.query.completed === 'false' ? false : undefined,
         dueDate: req.query.dueDate,
+        timeOfDay: req.query.timeOfDay || req.query.tod,
         priority: req.query.priority,
-        occurrence: req.query.occurrence,
-        timeOfDay: req.query.timeOfDay // Add support for timeOfDay filter
+        occurrence: req.query.occurrence
       };
-      
+
       // Remove undefined filters
       Object.keys(filters).forEach(key => 
         filters[key] === undefined && delete filters[key]
       );
+
+      const tasks = await TaskModel.getAll(filters);
       
-      console.log('Fetching tasks with filters:', filters);
-      const tasks = await TaskModel.getAllTasks(filters);
-      res.json({ success: true, tasks });
-    } catch (error) {
-      console.error('Controller error in getAllTasks:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to fetch tasks',
-        error: error.message
+      res.json({
+        success: true,
+        count: tasks.length,
+        tasks
       });
+    } catch (error) {
+      console.error('Error getting tasks:', error);
+      next(error);
     }
   },
-  
-
 
   /**
    * Get today's tasks
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
    */
-  getTodaysTasks: async (req, res) => {
+  async getTodaysTasks(req, res, next) {
     try {
-      // Extract options from query parameters
-      const options = {
-        includeCompleted: req.query.completed === 'true',
-        timeOfDay: req.query.timeOfDay,
-        groupByTimeOfDay: req.query.grouped === 'true' || req.query.grouped === undefined // Default to true if not specified
-      };
+      const includeCompleted = req.query.includeCompleted === 'true';
+      const result = await TaskModel.getTodaysTasks(includeCompleted);
       
-      console.log('Request for today\'s tasks with options:', options);
-      
-      console.log('Fetching today\'s tasks with options:', options);
-      
-      const result = await TaskModel.getTodaysTasks(options);
-      
-      // Return the appropriate response based on whether tasks are grouped
-      if (options.groupByTimeOfDay) {
-        res.json({
-          success: true,
-          date: result.date,
-          groupedTasks: result.groupedTasks,
-          allTasks: result.allTasks
-        });
-      } else {
-        res.json({
-          success: true,
-          date: result.date,
-          tasks: result.tasks
-        });
-      }
-    } catch (error) {
-      console.error('Controller error in getTodaysTasks:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to fetch today\'s tasks',
-        error: error.message
+      res.json({
+        success: true,
+        ...result
       });
+    } catch (error) {
+      console.error('Error getting today\'s tasks:', error);
+      next(error);
     }
   },
-  
-
 
   /**
    * Get a single task by ID
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
    */
-  getTaskById: async (req, res) => {
+  async getTaskById(req, res, next) {
     try {
-      const taskId = req.params.id;
-      const task = await TaskModel.getTaskById(taskId);
+      const { id } = req.params;
+      const task = await TaskModel.getById(id);
       
-      if (!task) {
-        return res.status(404).json({
-          success: false,
-          message: 'Task not found'
-        });
-      }
-      
-      res.json({ success: true, task });
-    } catch (error) {
-      console.error('Controller error in getTaskById:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to fetch task',
-        error: error.message
+      res.json({
+        success: true,
+        task
       });
+    } catch (error) {
+      console.error('Error getting task:', error);
+      next(error);
     }
   },
-  
 
-  
   /**
    * Create a new task
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
    */
-  createTask: async (req, res) => {
+  async createTask(req, res, next) {
     try {
-      let taskData = req.body;
+      const taskData = req.body;
       
       // Validate required fields
-      if (!taskData.title) {
+      if (!taskData.title && !taskData.name) {
         return res.status(400).json({
           success: false,
           message: 'Task title is required'
         });
       }
+
+      const task = await TaskModel.create(taskData);
       
-      // Convert string 'true'/'false' to boolean for completed field
-      if (typeof taskData.completed === 'string') {
-        taskData.completed = taskData.completed.toLowerCase() === 'true';
-        console.log(`Converted completed string to boolean: ${taskData.completed}`);
-      }
-      
-      // Log the task data being created
-      console.log('Creating task with data:', JSON.stringify(taskData));
-      
-      const task = await TaskModel.createTask(taskData);
-      res.status(201).json({ success: true, task });
-    } catch (error) {
-      console.error('Controller error in createTask:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to create task',
-        error: error.message
+      res.status(201).json({
+        success: true,
+        task,
+        message: 'Task created successfully'
       });
+    } catch (error) {
+      console.error('Error creating task:', error);
+      next(error);
     }
   },
-  
+
+  /**
+   * Create multiple tasks (batch operation)
+   */
+  async createBatch(req, res, next) {
+    try {
+      const { tasks } = req.body;
+      
+      if (!Array.isArray(tasks) || tasks.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tasks array is required and must not be empty'
+        });
+      }
+
+      // Validate all tasks have titles
+      const invalidTasks = tasks.filter((t, i) => !t.title && !t.name)
+        .map((t, i) => i);
+      
+      if (invalidTasks.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Tasks at indices ${invalidTasks.join(', ')} are missing titles`
+        });
+      }
+
+      const result = await TaskModel.createBatch(tasks);
+      
+      const status = result.failed === 0 ? 201 : 207; // 207 = Multi-Status
+      
+      res.status(status).json({
+        success: result.success,
+        message: `Created ${result.created} tasks${result.failed > 0 ? `, ${result.failed} failed` : ''}`,
+        created: result.created,
+        failed: result.failed,
+        tasks: result.tasks,
+        errors: result.errors.length > 0 ? result.errors : undefined
+      });
+    } catch (error) {
+      console.error('Error in batch creation:', error);
+      next(error);
+    }
+  },
+
   /**
    * Update an existing task
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
    */
-  updateTask: async (req, res) => {
+  async updateTask(req, res, next) {
     try {
-      const taskId = req.params.id;
-      let taskData = req.body;
-      
-      // Convert string 'true'/'false' to boolean for completed field
-      if (typeof taskData.completed === 'string') {
-        taskData.completed = taskData.completed.toLowerCase() === 'true';
-        console.log(`Converted completed string to boolean: ${taskData.completed}`);
+      const { id } = req.params;
+      const updates = req.body;
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'No updates provided'
+        });
       }
+
+      const task = await TaskModel.update(id, updates);
       
-      // Log the incoming data for debugging
-      console.log('Update task request:', {
-        method: req.method,
-        taskId,
-        bodyData: JSON.stringify(taskData)
+      res.json({
+        success: true,
+        task,
+        message: 'Task updated successfully'
       });
-      
-      const task = await TaskModel.updateTask(taskId, taskData);
-      res.json({ success: true, task });
     } catch (error) {
-      console.error('Controller error in updateTask:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to update task',
-        error: error.message
-      });
+      console.error('Error updating task:', error);
+      next(error);
     }
   },
-  
+
   /**
-   * Delete a task (archives it in Notion)
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
+   * Delete (archive) a task
    */
-  deleteTask: async (req, res) => {
+  async deleteTask(req, res, next) {
     try {
-      const taskId = req.params.id;
-      const result = await TaskModel.deleteTask(taskId);
+      const { id } = req.params;
+      const result = await TaskModel.delete(id);
       
-      res.json({ 
-        success: true, 
-        message: 'Task archived successfully',
-        result
+      res.json({
+        success: true,
+        ...result
       });
     } catch (error) {
-      console.error('Controller error in deleteTask:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to archive task',
-        error: error.message
+      console.error('Error deleting task:', error);
+      next(error);
+    }
+  },
+
+  /**
+   * Mark task as complete
+   */
+  async completeTask(req, res, next) {
+    try {
+      const { id } = req.params;
+      const task = await TaskModel.complete(id);
+      
+      res.json({
+        success: true,
+        task,
+        message: 'Task marked as complete'
       });
+    } catch (error) {
+      console.error('Error completing task:', error);
+      next(error);
+    }
+  },
+
+  /**
+   * Mark task as incomplete
+   */
+  async uncompleteTask(req, res, next) {
+    try {
+      const { id } = req.params;
+      const task = await TaskModel.uncomplete(id);
+      
+      res.json({
+        success: true,
+        task,
+        message: 'Task marked as incomplete'
+      });
+    } catch (error) {
+      console.error('Error uncompleting task:', error);
+      next(error);
     }
   }
 };

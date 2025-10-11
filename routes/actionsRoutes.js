@@ -359,4 +359,62 @@ router.post("/actions/add-properties", async (req, res, next) => {
   }
 });
 
+// BATCH ENDPOINT!
+router.post('/actions/batch-create', async (req, res, next) => {
+  try {
+    const { dbId, entries } = req.body || {};
+    if (!dbId || !Array.isArray(entries)) {
+      return res.status(400).json({ success: false, message: 'dbId and entries[] required' });
+    }
+
+    // Use optimized batch for Tasks database
+    if (dbId === TASKS_DATABASE_ID) {
+      const tasks = entries.map(e => convertValuesToTaskData(e.values || []));
+      const result = await TaskModel.createBatch(tasks);
+      return res.status(result.success ? 201 : 207).json({
+        ...result,
+        optimized: true
+      });
+    }
+
+    // For other databases, create entries one by one (or use batch if available)
+    const schema = await getSchemaEnsure(dbId);
+    const model = new DynamicModel(dbId);
+    
+    // Check if model has batch support
+    if (model.createBatch) {
+      const dataArray = entries.map(e => valuesArrayToUpdate(e.values || [], schema));
+      const result = await model.createBatch(dataArray);
+      return res.status(result.success ? 201 : 207).json(result);
+    }
+    
+    // Fallback: create one by one
+    const results = [];
+    const errors = [];
+    
+    for (let i = 0; i < entries.length; i++) {
+      try {
+        const data = valuesArrayToUpdate(entries[i].values || [], schema);
+        const entry = await model.create(data);
+        results.push(entry);
+      } catch (err) {
+        errors.push({ index: i, error: err.message });
+      }
+    }
+
+    res.status(errors.length === 0 ? 201 : 207).json({
+      success: errors.length === 0,
+      created: results.length,
+      failed: errors.length,
+      entries: results,
+      errors: errors.length > 0 ? errors : undefined
+    });
+  } catch (err) {
+    console.error('Error in batch create:', err);
+    next(err);
+  }
+});
+
+
+
 module.exports = router;
