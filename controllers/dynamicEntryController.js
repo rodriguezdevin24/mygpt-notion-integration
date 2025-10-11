@@ -14,6 +14,7 @@ const dynamicEntryController = {
         } catch (err) {
             next(err);
         }
+        
     },
 
     // GET /api/dynamic/databases/:dbId/entries/:entryId

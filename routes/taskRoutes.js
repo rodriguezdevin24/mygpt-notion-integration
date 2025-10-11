@@ -7,6 +7,31 @@ const taskController = require('../controllers/taskController');
  * Task Routes - Optimized hardcoded endpoints
  */
 
+router.get('/schema', async (req, res) => {
+  const { notion } = require('../config/notion');
+  const TASKS_DB_ID = process.env.NOTION_TASKS_DATABASE_ID;
+  
+  try {
+    const db = await notion.databases.retrieve({
+      database_id: TASKS_DB_ID
+    });
+    
+    // Show all property names
+    const properties = Object.keys(db.properties);
+    
+    res.json({
+      message: "Your Tasks DB properties:",
+      properties: properties,
+      detailed: Object.entries(db.properties).map(([name, prop]) => ({
+        name: name,
+        type: prop.type
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET /api/tasks/today - Get today's tasks
 router.get('/today', taskController.getTodaysTasks);
 
@@ -36,5 +61,8 @@ router.post('/:id/complete', taskController.completeTask);
 
 // POST /api/tasks/:id/uncomplete - Mark task as incomplete
 router.post('/:id/uncomplete', taskController.uncompleteTask);
+
+// Temporary debug route - DELETE AFTER FIXING
+
 
 module.exports = router;

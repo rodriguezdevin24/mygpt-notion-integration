@@ -70,6 +70,13 @@ class DatabaseRegistry {
 
     this.databases.set(schema.id, schema);
     console.log(`Registered database: ${schema.name} (${schema.id})`);
+
+    //Debug
+    const verify = this.databases.get(schema.id);
+  if (!verify) {
+    console.error(`❌ FAILED TO REGISTER: ${schema.id} - Map.get returns null!`);
+  }
+
   }
 
   /**

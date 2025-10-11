@@ -53,28 +53,6 @@ Headers: ${JSON.stringify(req.headers)}
   try {
     await databaseRegistry.initialize();
     console.log('Database registry initialized');
-    
-    // Register the tasks database if it's not already in the registry
-    if (!databaseRegistry.getDatabaseSchema(process.env.NOTION_TASKS_DATABASE_ID)) {
-      const tasksSchema = {
-        id: process.env.NOTION_TASKS_DATABASE_ID,
-        name: 'Tasks',
-        properties: {
-          Task: { type: 'title', required: true },
-          c: { type: 'checkbox' },
-          'Due Date': { type: 'date' },
-          Note: { type: 'rich_text' },
-          Occurrence: { type: 'select' },
-          'Time of Day': { type: 'multi_select' },
-          Goals: { type: 'relation' },
-          Priority: { type: 'select' }
-        }
-      };
-      
-      databaseRegistry.registerDatabase(tasksSchema);
-      await databaseRegistry.saveSchema(tasksSchema);
-      console.log('Registered existing tasks database in registry');
-    }
   } catch (error) {
     console.error('Error initializing database registry:', error);
   }

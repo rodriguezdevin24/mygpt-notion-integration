@@ -1,0 +1,63 @@
+{
+  "id": "289459ef-f3eb-8140-bde5-cbd512c3bd7b",
+  "name": "Test DB",
+  "properties": {
+    "Title": {
+      "title": {}
+    },
+    "Status": {
+      "select": {
+        "options": [
+          {
+            "name": "Not Started"
+          },
+          {
+            "name": "In Progress"
+          },
+          {
+            "name": "Completed"
+          }
+        ]
+      }
+    },
+    "Priority": {
+      "select": {
+        "options": [
+          {
+            "name": "Low"
+          },
+          {
+            "name": "Medium"
+          },
+          {
+            "name": "High"
+          }
+        ]
+      }
+    },
+    "Due Date": {
+      "date": {}
+    },
+    "Tags": {
+      "multi_select": {
+        "options": [
+          {
+            "name": "Test"
+          },
+          {
+            "name": "Backend"
+          },
+          {
+            "name": "API"
+          },
+          {
+            "name": "Debug"
+          }
+        ]
+      }
+    }
+  },
+  "createdTime": "2025-10-11T09:10:00.000Z",
+  "lastEditedTime": "2025-10-11T09:10:00.000Z",
+  "url": "https://www.notion.so/289459eff3eb8140bde5cbd512c3bd7b"
+}
