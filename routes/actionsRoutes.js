@@ -7,6 +7,8 @@ const databaseRegistry = require("../config/databaseRegistry");
 const NotionDiscoveryService = require("../services/notionDiscoveryService");
 const dynamicDbService = require("../services/dynamicDbService");
 
+const TASKS_DATABASE_ID = process.env.NOTION_TASKS_DATABASE_ID
+
 const { validateFormulaBasics } = require('../utils/notionFormulas');
 
 /* ===== helpers: name + value mapping (for multi_select, rich_text, etc.) ===== */

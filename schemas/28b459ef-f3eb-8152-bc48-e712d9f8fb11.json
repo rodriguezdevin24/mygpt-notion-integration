@@ -1,0 +1,26 @@
+{
+  "id": "28b459ef-f3eb-8152-bc48-e712d9f8fb11",
+  "name": "Test Projects v2",
+  "properties": {
+    "Total Hours": {
+      "type": "rich_text"
+    },
+    "Related Tasks": {
+      "type": "relation",
+      "relation": {
+        "database_id": "28b459ef-f3eb-81cc-a48a-da4c778c104c"
+      }
+    },
+    "Budget": {
+      "type": "number",
+      "format": "dollar"
+    },
+    "Project Name": {
+      "type": "title"
+    }
+  },
+  "lastEditedTime": "2025-10-13T11:31:00.000Z",
+  "url": "https://www.notion.so/28b459eff3eb8152bc48e712d9f8fb11",
+  "icon": null,
+  "cover": null
+}

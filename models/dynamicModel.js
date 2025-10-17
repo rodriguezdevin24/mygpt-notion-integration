@@ -76,6 +76,8 @@ class DynamicModel {
   }
 
   formatForNotion(data) {
+    console.log('🔍 SCHEMA FORMAT CHECK:');
+    console.log('Sample property:', JSON.stringify(Object.entries(this.schema.properties)[0], null, 2));
     const properties = {};
     
     for (const [propName, propDef] of Object.entries(this.schema.properties)) {
