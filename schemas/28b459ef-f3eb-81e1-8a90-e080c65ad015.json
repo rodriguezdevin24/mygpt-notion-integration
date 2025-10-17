@@ -1,0 +1,70 @@
+{
+  "id": "28b459ef-f3eb-81e1-8a90-e080c65ad015",
+  "name": "API Test Suite DB",
+  "properties": {
+    "Email": {
+      "type": "email"
+    },
+    "Due Date": {
+      "type": "date"
+    },
+    "Tags": {
+      "type": "multi_select",
+      "options": [
+        "Bug",
+        "Feature",
+        "Documentation"
+      ]
+    },
+    "Status": {
+      "type": "select",
+      "options": [
+        "New",
+        "In Progress",
+        "Done"
+      ]
+    },
+    "Description": {
+      "type": "rich_text"
+    },
+    "Archived": {
+      "type": "checkbox"
+    },
+    "Priority": {
+      "type": "select",
+      "options": [
+        "Low",
+        "Medium",
+        "High"
+      ]
+    },
+    "Completion %": {
+      "type": "number",
+      "format": "percent"
+    },
+    "Is Active": {
+      "type": "checkbox"
+    },
+    "Score": {
+      "type": "number",
+      "format": "number"
+    },
+    "Website": {
+      "type": "url"
+    },
+    "Budget": {
+      "type": "number",
+      "format": "dollar"
+    },
+    "Owner": {
+      "type": "rich_text"
+    },
+    "Title": {
+      "type": "title"
+    }
+  },
+  "lastEditedTime": "2025-10-13T08:59:00.000Z",
+  "url": "https://www.notion.so/28b459eff3eb81e18a90e080c65ad015",
+  "icon": null,
+  "cover": null
+}

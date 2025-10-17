@@ -1,0 +1,26 @@
+{
+  "id": "28b459ef-f3eb-81cc-a48a-da4c778c104c",
+  "name": "Test Tasks v2",
+  "properties": {
+    "Task Name": {
+      "title": {}
+    },
+    "Project": {
+      "relation": {
+        "database_id": "28b459ef-f3eb-8152-bc48-e712d9f8fb11",
+        "type": "dual_property",
+        "dual_property": {
+          "synced_property_name": "Related Tasks"
+        }
+      }
+    },
+    "Hours": {
+      "number": {
+        "format": "number"
+      }
+    }
+  },
+  "createdTime": "2025-10-13T11:09:00.000Z",
+  "lastEditedTime": "2025-10-13T11:09:00.000Z",
+  "url": "https://www.notion.so/28b459eff3eb81cca48ada4c778c104c"
+}
