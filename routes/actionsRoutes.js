@@ -303,6 +303,29 @@ router.post("/actions/update-entry", async (req, res, next) => {
   }
 });
 
+
+//delete an entry api/actions/delete-entry 
+router.delete('/actions/delete-entry', async (req, res, next) => {
+  try {
+    const { dbId, entryId } = req.body || {};
+    if (!dbId || !entryId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'dbId and entryId required' 
+      });
+    }
+    
+    await getSchemaEnsure(dbId);
+    const model = new DynamicModel(dbId);
+    
+    const result = await model.delete(entryId);
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error('Error deleting entry:', err);
+    next(err);
+  }
+});
+
 // POST /api/actions/create-database
 router.post("/actions/create-database", async (req, res, next) => {
   try {
@@ -416,6 +439,64 @@ router.post('/actions/batch-create', async (req, res, next) => {
     next(err);
   }
 });
+
+//BATCH UPDATE ENTRIES 
+
+router.post('/actions/batch-update', async (req, res, next) => {
+  try {
+    const { dbId, updates } = req.body || {};
+    if (!dbId || !Array.isArray(updates) || !updates.length) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'dbId and updates[] required' 
+      });
+    }
+    
+    const schema = await getSchemaEnsure(dbId);
+    const model = new DynamicModel(dbId);
+    
+    // Convert each update from values[] format to data format
+    const formattedUpdates = updates.map(update => {
+      if (!update.entryId) {
+        throw new Error('Each update must have entryId');
+      }
+      return {
+        id: update.entryId,
+        data: valuesArrayToUpdate(update.values || [], schema)
+      };
+    });
+    
+    const result = await model.updateBatch(formattedUpdates);
+    res.json(result);
+  } catch (err) {
+    console.error('Error in batch update:', err);
+    next(err);
+  }
+});
+
+// BATCH DELETE ENDPOINT(ARCHIVE)
+router.post('/actions/batch-delete', async (req, res, next) => {
+  try {
+    const { dbId, entryIds } = req.body || {};
+    if (!dbId || !Array.isArray(entryIds) || !entryIds.length) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'dbId and entryIds[] required' 
+      });
+    }
+    
+    await getSchemaEnsure(dbId);
+    const model = new DynamicModel(dbId);
+    
+    const result = await model.deleteBatch(entryIds);
+    res.json(result);
+  } catch (err) {
+    console.error('Error in batch delete:', err);
+    next(err);
+  }
+});
+
+
 
 
 
