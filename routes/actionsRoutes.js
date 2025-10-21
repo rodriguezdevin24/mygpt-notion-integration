@@ -305,7 +305,7 @@ router.post("/actions/update-entry", async (req, res, next) => {
 
 
 //delete an entry api/actions/delete-entry 
-router.delete('/actions/delete-entry', async (req, res, next) => {
+router.post('/actions/delete-entry', async (req, res, next) => {
   try {
     const { dbId, entryId } = req.body || {};
     if (!dbId || !entryId) {
@@ -384,7 +384,18 @@ router.post("/actions/add-properties", async (req, res, next) => {
   }
 });
 
-// BATCH ENDPOINT!
+
+
+
+
+
+
+
+
+// BATCH ENDPOINTS! //
+
+
+// BATCH CREATE
 router.post('/actions/batch-create', async (req, res, next) => {
   try {
     const { dbId, entries } = req.body || {};
